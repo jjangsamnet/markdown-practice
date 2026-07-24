@@ -232,7 +232,39 @@ var LESSONS = [
   hintCode:'gantt\n  title 11월 프로젝트 수업 계획\n  dateFormat YYYY-MM-DD\n  section 준비\n  주제 정하기 : 2026-11-02, 3d\n  자료 조사 : 2026-11-05, 5d\n  section 실행\n  모둠 활동 : 2026-11-10, 7d\n  발표회 : 2026-11-17, 2d'
 },
 {
-  chip:'9', level:'종합 미션', title:'나의 수업 한 차시 설계도',
+  chip:'9', level:'응용 미션', title:'응용 ① 평문을 순서도로 변환하기',
+  intro:'<p>실전에서 가장 자주 하게 될 일 — <strong>글로 쓰인 계획을 다이어그램으로 변환</strong>하는 훈련입니다. 아래 평문을 읽고, 판단 지점(만약에)이 어디인지 찾아내는 것이 핵심입니다.</p>'
+  + '<pre>【현장체험학습 당일 운영 계획】\n아침에 날씨를 확인한다. 비가 오면 실내 프로그램(과학관)으로\n변경하고, 맑으면 예정대로 준비한다. 출발 전 인원 점검을 하여\n결원이 있으면 학부모에게 연락한 뒤 출발하고, 모두 있으면 바로\n출발한다. 현장 활동을 마치면 학교로 복귀한다.</pre>'
+  + '<div class="tip"><span class="tiptitle">변환 요령</span><br>"~하면 / ~아니면"이 나오는 문장이 마름모 {판단}가 되고, 그 갈래가 |라벨|이 됩니다. 이 글에는 판단이 <strong>두 번</strong> 나옵니다.</div>',
+  task:'위 평문을 순서도로 변환하세요. 조건: <strong>판단 마름모 2개</strong>, <strong>라벨 화살표 3개 이상</strong>, <strong>상자 4개 이상</strong>, <strong>(둥근) 시작과 ((원)) 끝</strong>, <strong>화살표 6개 이상</strong>.',
+  starter:'graph TD\n  S(아침: 날씨 확인) --> W{비가 오나요?}',
+  checks:[
+    {label:'🔁 판단 마름모 { } 가 2개 이상 있다', test:function(s){ return countMatch(s,/\{[^}]+\}/g) >= 2; }},
+    {label:'🔁 라벨 화살표(|라벨|)가 3개 이상 있다', test:function(s){ return countMatch(s,/\|[^|\n]+\|/g) >= 3; }},
+    {label:'🔁 상자 [ ] 가 4개 이상 있다', test:function(s){ return countMatch(s,/\[[^\]]+\]/g) >= 4; }},
+    {label:'🔁 (둥근) 시작과 ((원)) 끝이 모두 있다', test:function(s){ return /[A-Za-z0-9]\([^()]+\)/.test(s.replace(/\(\([^()]*\)\)/g,'')) && /\(\([^()]+\)\)/.test(s); }},
+    {label:'🔁 화살표(-->)가 6개 이상 있다', test:function(s){ return countMatch(s,/-->/g) >= 6; }}
+  ],
+  hint:'갈라졌던 길이 다시 하나로 모이는 지점에 주목하세요.',
+  hintCode:'graph TD\n  S(아침: 날씨 확인) --> W{비가 오나요?}\n  W -->|비| R[실내 프로그램: 과학관]\n  W -->|맑음| P[예정대로 준비]\n  R --> C{인원 점검: 모두 있나요?}\n  P --> C\n  C -->|결원| F[학부모 연락]\n  F --> G[출발]\n  C -->|모두 있음| G\n  G --> A[현장 활동]\n  A --> E((학교 복귀))'
+},
+{
+  chip:'10', level:'응용 미션', title:'응용 ② 고장난 다이어그램 수리하기',
+  intro:'<p>동료 선생님이 만든 상담 안내 순서도가 <strong>그려지지 않는다</strong>며 도움을 요청했습니다. 오른쪽 미리보기에 오류 안내가 떠 있을 것입니다.</p>'
+  + '<div class="tip"><span class="tiptitle">디버깅 힌트</span><br>네 종류의 고장이 숨어 있습니다 — 닫히지 않은 대괄호 <code>[</code>, 짧게 쓴 화살표 <code>-></code>(올바른 화살표는 <code>--></code>), 닫히지 않은 라벨 <code>|</code>, 닫히지 않은 원 <code>((</code>. 한 곳을 고칠 때마다 미리보기가 어떻게 변하는지 관찰하세요.</div>',
+  task:'<strong>내용(글자)은 바꾸지 말고 기호만 수리</strong>해서 다이어그램이 정상적으로 그려지게 만드세요.',
+  starter:'graph TD\n  A[상담 신청 접수 --> B{희망 시간대 확인}\n  B ->|오후| C[대면 상담 배정]\n  B -->|저녁 D[전화 상담 배정]\n  C --> E((상담 확정)\n  D --> E',
+  checks:[
+    {label:'🔁 원래 내용 4가지가 모두 남아 있다 (접수·대면·전화·확정)', test:function(s){ return ['상담 신청 접수','대면 상담','전화 상담','상담 확정'].every(function(k){ return s.indexOf(k) !== -1; }); }},
+    {label:'🔁 올바른 화살표(-->)가 5개 있다', test:function(s){ return countMatch(s,/-->/g) >= 5 && !/[^-]->[^>]/.test(s.replace(/-->/g,'==')); }},
+    {label:'🔁 라벨 |오후| 와 |저녁| 이 모두 닫혀 있다', test:function(s){ return /\|오후\|/.test(s) && /\|저녁\|/.test(s); }},
+    {label:'🔁 원 (( )) 이 제대로 닫혀 있다', test:function(s){ return /\(\([^()]+\)\)/.test(s); }}
+  ],
+  hint:'고장 4곳: 첫 줄 대괄호 닫기, 둘째 줄 화살표 대시 추가, 셋째 줄 라벨 닫기, 넷째 줄 괄호 하나 더.',
+  hintCode:'graph TD\n  A[상담 신청 접수] --> B{희망 시간대 확인}\n  B -->|오후| C[대면 상담 배정]\n  B -->|저녁| D[전화 상담 배정]\n  C --> E((상담 확정))\n  D --> E'
+},
+{
+  chip:'11', level:'종합 미션', title:'나의 수업 한 차시 설계도',
   intro:'<p>마지막 미션은 <strong>자유 설계</strong>입니다. 다음 주에 실제로 할 수업 한 차시를 순서도로 설계하세요. 학생 반응에 따라 갈라지는 지점(분기)을 반드시 넣는 것이 핵심입니다 — 수업 설계에서 가장 중요한 "만약에"를 그림으로 만드는 연습입니다.</p>'
   + '<div class="tip"><span class="tiptitle">활용</span><br>완성한 설계도는 옵시디언 노트에 <code>```mermaid</code> 코드 블록으로 붙여 넣으면 수업 기록과 함께 보관됩니다. AI에게 이 코드를 주고 "이 수업의 약점을 찾아 줘"라고 요청할 수도 있습니다.</div>',
   task:'조건: <strong>상자 6개 이상</strong>, <strong>판단 마름모 1개 이상</strong>, <strong>라벨 있는 화살표 2개 이상</strong>, <strong>화살표 6개 이상</strong>. 내용은 여러분의 실제 수업으로 채우세요.',
