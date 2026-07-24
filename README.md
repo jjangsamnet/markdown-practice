@@ -10,6 +10,7 @@
 | `mission.html` | 기초·중급·고급 3미션 12단계 — 나선형 반복 훈련 |
 | `chapter03.html` | 교재 Chapter 03 (09~15절) 연계 11단계 실습 |
 | `school-docs.html` | 학교 문서(알림장·가정통신문) 변환 10단계 실습 |
+| `mermaid.html` | 머메이드 다이어그램 9단계 실습 (실시간 렌더링, CDN 필요) |
 
 ## GitHub Pages로 배포하기
 

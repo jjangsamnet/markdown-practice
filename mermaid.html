@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>머메이드로 다이어그램 그리기 — 단계별 실습</title>
+<style>
+  :root{
+    --bg:#f7f5fc; --card:#ffffff; --ink:#2a2438; --sub:#6d6580;
+    --line:#e8e3f4; --accent:#8b5cf6; --accent-deep:#6d3ef0; --accent-soft:#f1ecfd;
+    --ok:#1a9e6c; --ok-soft:#e6f6ef;
+    --code-bg:#f4f1fb; --radius:14px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,sans-serif; background:var(--bg); color:var(--ink); line-height:1.65;}
+  header{background:var(--card); border-bottom:1px solid var(--line); padding:14px 24px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:20;}
+  .chapter-chip{font-size:.7rem; font-weight:700; color:#fff; background:var(--accent); border-radius:99px; padding:4px 12px; flex-shrink:0;}
+  header h1{font-size:1.05rem; font-weight:800;}
+  header .sub{font-size:.78rem; color:var(--sub);}
+  .progress-wrap{margin-left:auto; display:flex; align-items:center; gap:10px; font-size:.85rem; color:var(--sub);}
+  .bar{width:150px; height:8px; background:var(--line); border-radius:99px; overflow:hidden;}
+  .bar i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent-deep)); border-radius:99px; transition:width .3s;}
+  .layout{display:flex; max-width:1400px; margin:0 auto; min-height:calc(100vh - 61px);}
+  nav{width:265px; flex-shrink:0; padding:20px 12px; border-right:1px solid var(--line); background:var(--card);}
+  nav .lv{font-size:.7rem; font-weight:800; color:var(--accent-deep); letter-spacing:.05em; margin:16px 8px 6px;}
+  nav button{display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:9px 10px; border:none; background:none; border-radius:10px; font-size:.85rem; color:var(--ink); cursor:pointer; font-family:inherit;}
+  nav button:hover{background:var(--accent-soft);}
+  nav button.active{background:var(--accent); color:#fff; font-weight:600;}
+  nav button .done{margin-left:auto; color:var(--ok); font-weight:700;}
+  nav button.active .done{color:#e5d9fd;}
+  main{flex:1; padding:24px; min-width:0;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:16px;}
+  .lesson-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .booknum{font-size:.7rem; font-weight:700; padding:3px 8px; border-radius:6px; background:var(--accent); color:#fff;}
+  .lesson-head h2{font-size:1.25rem;}
+  .intro{margin-top:10px; font-size:.95rem;}
+  .intro p{margin:8px 0;}
+  .intro code, .task code{background:var(--code-bg); padding:2px 6px; border-radius:6px; font-size:.85em; font-family:Consolas,Menlo,monospace;}
+  .intro pre{background:var(--code-bg); border-radius:10px; padding:12px 14px; margin:10px 0; overflow-x:auto; font-size:.85rem; font-family:Consolas,Menlo,monospace; line-height:1.55; white-space:pre;}
+  .intro table{border-collapse:collapse; margin:10px 0; font-size:.88rem;}
+  .intro th,.intro td{border:1px solid #d5cbee; padding:6px 14px;}
+  .intro th{background:var(--accent-soft);}
+  .tip{background:#faf7ff; border:1.5px solid #ddc9ff; border-radius:12px; padding:12px 16px; margin:12px 0; font-size:.88rem;}
+  .tip .tiptitle{display:inline-block; font-weight:800; color:#fff; background:var(--accent-deep); border-radius:8px; padding:2px 10px; font-size:.75rem; margin-bottom:6px;}
+  .task{background:var(--accent-soft); border-radius:10px; padding:14px 16px; margin-top:14px; font-size:.93rem;}
+  .task strong{color:var(--accent-deep);}
+  .work{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:900px){ .work{grid-template-columns:1fr;} .layout{flex-direction:column;} nav{width:100%; display:flex; flex-wrap:wrap; border-right:none; border-bottom:1px solid var(--line);} nav .lv{width:100%;} nav button{width:auto;} }
+  .pane{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column;}
+  .pane-title{font-size:.78rem; font-weight:700; color:var(--sub); padding:10px 14px; border-bottom:1px solid var(--line); background:#fbf9ff; display:flex; align-items:center;}
+  .pane-title .hintbtn{margin-left:auto; font-size:.75rem; border:1px solid var(--line); background:#fff; border-radius:8px; padding:3px 10px; cursor:pointer; color:var(--sub); font-family:inherit;}
+  textarea{width:100%; flex:1; min-height:320px; border:none; resize:vertical; padding:14px; font-family:Consolas,Menlo,'Malgun Gothic',monospace; font-size:.9rem; line-height:1.7; outline:none; color:var(--ink); background:#fff; white-space:pre;}
+  .preview{padding:14px 16px; min-height:320px; overflow:auto; display:flex; align-items:flex-start; justify-content:center;}
+  .preview svg{max-width:100%; height:auto;}
+  .mm-error{color:#b45309; background:#fff8ed; border:1px solid #f3dfc0; border-radius:10px; padding:14px 16px; font-size:.88rem; width:100%;}
+  .mm-error span{font-family:Consolas,Menlo,monospace; font-size:.78rem; color:#92700c; display:block; margin-top:6px; word-break:break-all;}
+  .checks{margin-top:16px;}
+  .checks h3{font-size:.9rem; margin-bottom:8px;}
+  .check{display:flex; gap:10px; align-items:flex-start; padding:7px 12px; border-radius:10px; font-size:.9rem; color:var(--sub); margin-bottom:4px; background:#fbf9ff; border:1px solid var(--line);}
+  .check.pass{background:var(--ok-soft); color:var(--ok); border-color:#bfe8d6; font-weight:600;}
+  .check .mark{font-weight:700; width:1.2em; flex-shrink:0;}
+  .hint{display:none; margin-top:12px; background:#fff8ed; border:1px solid #f3dfc0; border-radius:10px; padding:12px 16px; font-size:.88rem; color:#7c5a1e;}
+  .hint.show{display:block;}
+  .hint pre{background:#fff; border-radius:8px; padding:10px 12px; margin-top:8px; font-family:Consolas,Menlo,monospace; font-size:.83rem; overflow-x:auto; color:#444; white-space:pre;}
+  .footer-nav{display:flex; gap:12px; margin-top:18px; align-items:center; flex-wrap:wrap;}
+  .btn{font-family:inherit; font-size:.92rem; font-weight:600; border-radius:10px; cursor:pointer; padding:10px 20px; border:1px solid var(--line); background:var(--card); color:var(--ink);}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .btn.primary:disabled{background:#cbb8f5; border-color:#cbb8f5; cursor:not-allowed;}
+  .status-msg{font-size:.88rem; color:var(--ok); font-weight:600; display:none;}
+  .status-msg.show{display:inline;}
+  .finish{text-align:center; padding:40px 20px;}
+  .finish .big{font-size:2.4rem;}
+  .finish h2{margin:10px 0;}
+  .finish p{color:var(--sub); max-width:560px; margin:6px auto;}
+  .note{font-size:.78rem; color:var(--sub); margin-top:14px;}
+</style>
+</head>
+<body>
+<header>
+  <span class="chapter-chip">MERMAID</span>
+  <div>
+    <h1>머메이드로 다이어그램 그리기</h1>
+    <div class="sub">그리는 대신 씁니다 — 수업 흐름도부터 학사 일정까지, 텍스트로 그리는 다이어그램</div>
+  </div>
+  <div class="progress-wrap">
+    <span id="progressText">0 / 0</span>
+    <div class="bar"><i id="progressBar"></i></div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.12.0/mermaid.min.js"></script>
+<script>
+/* ===== LOGIC:BEGIN ===== */
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function countMatch(src, re){ var m = src.match(re); return m ? m.length : 0; }
+
+var LESSONS = [
+{
+  type:'info', chip:'START', level:'소개', title:'머메이드란?',
+  intro:'<p><strong>머메이드(Mermaid)</strong>는 텍스트를 작성해서 다이어그램이나 차트를 그릴 수 있는 도구입니다. 마우스로 도형을 그리는 대신, 몇 줄의 글로 순서도·마인드맵·타임라인을 만듭니다.</p>'
+  + '<p>옵시디언에서는 코드 블록에 <code>mermaid</code>라고 쓰고 그 안에 머메이드 문법을 적으면 노트 안에 다이어그램이 그려집니다.</p>'
+  + '<pre>```mermaid\ngraph TD\n  A[도입] --> B[전개]\n```</pre>'
+  + '<div class="tip"><span class="tiptitle">이 실습에서는</span><br>편집기에 <strong>코드 블록 기호(```)를 빼고 머메이드 문법만</strong> 입력합니다. 오른쪽 미리보기에 다이어그램이 실시간으로 그려지고, 문법이 틀리면 안내가 표시됩니다. 옵시디언으로 옮길 때는 <code>```mermaid</code> 코드 블록으로 감싸기만 하면 됩니다.</div>'
+  + '<p>텍스트로 그리면 좋은 점 — 수정이 쉽고, 복사·재사용이 되고, AI에게 "이 수업 흐름도를 머메이드로 그려 줘"라고 요청할 수도 있습니다.</p>',
+  task:'준비되었으면 <strong>[시작하기 →]</strong> 버튼을 누르세요.'
+},
+{
+  chip:'1', level:'순서도', title:'수업 흐름도 — 첫 다이어그램',
+  intro:'<p>가장 많이 쓰는 다이어그램은 <strong>순서도(flowchart)</strong>입니다. <code>graph TD</code>는 "위에서 아래로(Top-Down) 흐르는 그림"이라는 선언이고, <code>A[내용]</code>은 상자, <code>--></code>는 화살표입니다.</p>'
+  + '<pre>graph TD\n  A[도입] --> B[전개]\n  B --> C[정리]</pre>'
+  + '<p><code>A</code>, <code>B</code>는 상자의 이름표(ID)이고, 대괄호 안의 글자가 화면에 보입니다.</p>',
+  task:'미완성 수업 흐름도를 완성하세요. <strong>정리 단계와 평가 단계 상자를 추가</strong>해서 상자 4개가 화살표 3개로 이어지게 만드세요.',
+  starter:'graph TD\n  A[도입: 동기 유발] --> B[전개: 모둠 활동]',
+  checks:[
+    {label:'graph TD(또는 LR) 선언이 있다', test:function(s){ return /^\s*(graph|flowchart)\s+(TD|TB|LR)/m.test(s); }},
+    {label:'상자 [ ] 가 4개 이상 있다', test:function(s){ return countMatch(s,/\[[^\]]+\]/g) >= 4; }},
+    {label:'화살표(-->)가 3개 이상 있다', test:function(s){ return countMatch(s,/-->/g) >= 3; }}
+  ],
+  hint:'B에서 C로, C에서 D로 이어 붙이면 됩니다.',
+  hintCode:'graph TD\n  A[도입: 동기 유발] --> B[전개: 모둠 활동]\n  B --> C[정리: 배움 공유]\n  C --> D[평가: 출구 티켓]'
+},
+{
+  chip:'2', level:'순서도', title:'조건 분기 — 마름모와 라벨',
+  intro:'<p>순서도의 힘은 <strong>갈림길</strong>입니다. 판단은 중괄호 <code>{ }</code>(마름모), 갈림길의 이름은 화살표 사이에 <code>|라벨|</code>로 씁니다.</p>'
+  + '<pre>B{제출했나요?}\nB -->|예| C[피드백 작성]\nB -->|아니오| D[알림장 안내]</pre>',
+  task:'과제 확인 흐름을 완성하세요. <strong>마름모 판단에서 |예| 와 |아니오| 두 갈래</strong>로 갈라져 각각 다른 상자에 도착해야 합니다.',
+  starter:'graph TD\n  A[과제 확인] --> B{제출했나요?}',
+  checks:[
+    {label:'판단 마름모 { } 가 있다', test:function(s){ return /\{[^}]+\}/.test(s); }},
+    {label:'화살표 라벨 |라벨| 이 2개 이상 있다', test:function(s){ return countMatch(s,/\|[^|]+\|/g) >= 2; }},
+    {label:'상자 [ ] 가 3개 이상 있다', test:function(s){ return countMatch(s,/\[[^\]]+\]/g) >= 3; }}
+  ],
+  hint:'마름모에서 나가는 화살표 두 개에 각각 라벨을 붙이세요.',
+  hintCode:'graph TD\n  A[과제 확인] --> B{제출했나요?}\n  B -->|예| C[피드백 작성]\n  B -->|아니오| D[알림장으로 안내]'
+},
+{
+  chip:'3', level:'순서도', title:'노드 모양 사전',
+  intro:'<p>상자 모양마다 뜻을 정해두면 순서도가 훨씬 읽기 쉬워집니다.</p>'
+  + '<table><tr><th>문법</th><th>모양</th><th>주로 쓰는 뜻</th></tr>'
+  + '<tr><td><code>A[활동]</code></td><td>사각형</td><td>활동, 처리</td></tr>'
+  + '<tr><td><code>A(시작)</code></td><td>둥근 사각형</td><td>시작, 끝</td></tr>'
+  + '<tr><td><code>A{판단}</code></td><td>마름모</td><td>질문, 분기</td></tr>'
+  + '<tr><td><code>A((강조))</code></td><td>원</td><td>핵심, 도착점</td></tr></table>'
+  + '<p>방향을 <code>graph LR</code>로 바꾸면 왼쪽에서 오른쪽으로 흐릅니다.</p>',
+  task:'하루의 흐름을 <strong>네 가지 모양을 모두 사용</strong>해 그리세요. (둥근) 시작, [사각] 활동, {마름모} 판단, ((원)) 마무리가 각각 1개 이상 있어야 합니다.',
+  starter:'graph LR\n  S(등교) --> A[아침 활동]',
+  checks:[
+    {label:'둥근 사각형 ( ) 이 있다', test:function(s){ return /[A-Za-z0-9]\([^()]+\)/.test(s.replace(/\(\([^()]*\)\)/g,'')); }},
+    {label:'판단 마름모 { } 가 있다', test:function(s){ return /\{[^}]+\}/.test(s); }},
+    {label:'원 (( )) 이 있다', test:function(s){ return /\(\([^()]+\)\)/.test(s); }},
+    {label:'상자 [ ] 가 2개 이상 있다', test:function(s){ return countMatch(s,/\[[^\]]+\]/g) >= 2; }}
+  ],
+  hint:'마름모에서 갈라진 두 길이 다시 만나도 좋습니다.',
+  hintCode:'graph LR\n  S(등교) --> A[아침 활동]\n  A --> B{지각인가?}\n  B -->|아니오| C[1교시 수업]\n  B -->|예| D[지각 기록]\n  C --> E((하교))\n  D --> C'
+},
+{
+  chip:'4', level:'대화와 관계', title:'시퀀스 다이어그램 — 주고받기',
+  intro:'<p>두 사람(또는 시스템)이 <strong>주고받는 과정</strong>은 시퀀스 다이어그램으로 그립니다. 교재의 "손님과 주인" 예시가 바로 이것입니다.</p>'
+  + '<pre>sequenceDiagram\n  손님->>주인: 콜라 하나 주세요.\n  주인->>손님: 알겠습니다.</pre>'
+  + '<p><code>->></code>는 화살표가 있는 메시지입니다. 왼쪽이 보내는 사람, 오른쪽이 받는 사람, 콜론 뒤가 말풍선 내용입니다.</p>',
+  task:'학생과 선생님이 과제를 주고받는 과정을 그리세요. <strong>메시지가 4개 이상</strong> 오가야 합니다. (제출 → 피드백 → 수정 제출 → 확인)',
+  starter:'sequenceDiagram\n  학생->>선생님: 과제를 제출합니다.',
+  checks:[
+    {label:'sequenceDiagram 선언이 있다', test:function(s){ return /^\s*sequenceDiagram/m.test(s); }},
+    {label:'메시지(->>)가 4개 이상 있다', test:function(s){ return countMatch(s,/->>/g) >= 4; }},
+    {label:'참여자가 2명 이상 등장한다', test:function(s){ var m=s.match(/^\s*([^\s>:-]+)->>([^\s:]+):/gm); if(!m) return false; var names={}; m.forEach(function(x){ var p=x.split('->>'); names[p[0].trim()]=1; names[p[1].split(':')[0].trim()]=1; }); return Object.keys(names).length >= 2; }}
+  ],
+  hint:'화살표 방향을 번갈아 바꾸면 대화가 됩니다.',
+  hintCode:'sequenceDiagram\n  학생->>선생님: 과제를 제출합니다.\n  선생님->>학생: 피드백을 보냅니다.\n  학생->>선생님: 수정본을 제출합니다.\n  선생님->>학생: 통과! 수고했어요.'
+},
+{
+  chip:'5', level:'생각 정리', title:'마인드맵 — 단원 개념도',
+  intro:'<p>마인드맵은 <strong>들여쓰기가 곧 가지</strong>입니다. 중심 주제에서 시작해, 안으로 들여쓸수록 하위 개념이 됩니다.</p>'
+  + '<pre>mindmap\n  root((물의 순환))\n    증발\n      태양 에너지\n    응결</pre>'
+  + '<div class="tip"><span class="tiptitle">주의</span><br>들여쓰기 폭(공백 2칸씩)을 일정하게 유지하세요. 들쭉날쭉하면 가지가 엉킵니다.</div>',
+  task:'단원 개념도를 완성하세요. 중심 주제에서 뻗은 <strong>큰 가지 3개</strong>, 그중 <strong>하위 가지 2개 이상</strong>이 있어야 합니다. 주제는 자유롭게 바꿔도 좋습니다.',
+  starter:'mindmap\n  root((물의 순환))\n    증발',
+  checks:[
+    {label:'mindmap 선언과 root(( )) 중심 주제가 있다', test:function(s){ return /^\s*mindmap/m.test(s) && /root\(\([^)]+\)\)/.test(s); }},
+    {label:'큰 가지(들여쓰기 4칸)가 3개 이상 있다', test:function(s){ return countMatch(s,/^ {4}\S/gm) >= 3; }},
+    {label:'하위 가지(들여쓰기 6칸)가 2개 이상 있다', test:function(s){ return countMatch(s,/^ {6}\S/gm) >= 2; }}
+  ],
+  hint:'가지마다 들여쓰기 2칸씩 더 들어갑니다.',
+  hintCode:'mindmap\n  root((물의 순환))\n    증발\n      태양 에너지\n    응결\n      구름\n    강수\n      비와 눈'
+},
+{
+  chip:'6', level:'생각 정리', title:'타임라인 — 학기 흐름 한눈에',
+  intro:'<p>시간 순서로 흐르는 일정은 타임라인이 제격입니다. <code>시기 : 내용</code> 형식으로 한 줄씩 씁니다.</p>'
+  + '<pre>timeline\n  title 2학기 주요 일정\n  9월 : 학급 규칙 세우기\n  10월 : 현장체험학습</pre>',
+  task:'2학기 학급 타임라인을 완성하세요. <strong>제목(title)과 시기별 항목 4개 이상</strong>이 필요합니다. 한 시기에 <code>: 내용 : 내용</code>처럼 콜론을 이어 쓰면 항목이 두 개 달립니다.',
+  starter:'timeline\n  title 2학기 우리 반 주요 일정\n  9월 : 학급 규칙 세우기',
+  checks:[
+    {label:'timeline 선언이 있다', test:function(s){ return /^\s*timeline/m.test(s); }},
+    {label:'title 제목이 있다', test:function(s){ return /^\s*title\s+\S/m.test(s); }},
+    {label:'시기 : 내용 항목이 4개 이상 있다', test:function(s){ return countMatch(s,/\S\s*:\s*\S/g) >= 4; }}
+  ],
+  hint:'10월, 11월, 12월을 추가해 보세요.',
+  hintCode:'timeline\n  title 2학기 우리 반 주요 일정\n  9월 : 학급 규칙 세우기\n  10월 : 현장체험학습 : 학부모 상담 주간\n  11월 : 학예회 준비\n  12월 : 성장 발표회'
+},
+{
+  chip:'7', level:'자료 표현', title:'파이 차트 — 설문 결과',
+  intro:'<p>학급 설문 결과 같은 비율 자료는 파이 차트로 바로 그릴 수 있습니다. 항목은 <code>"이름" : 숫자</code> 형식입니다.</p>'
+  + '<pre>pie title 좋아하는 계절\n  "여름" : 10\n  "겨울" : 8</pre>',
+  task:'우리 반 설문 결과를 파이 차트로 그리세요. <strong>제목과 항목 4개 이상</strong>이 필요합니다. 실제 반 설문 주제로 바꿔도 좋습니다.',
+  starter:'pie title 좋아하는 과목 설문 (24명)\n  "체육" : 10',
+  checks:[
+    {label:'pie 선언과 title이 있다', test:function(s){ return /^\s*pie\b/m.test(s) && /title\s+\S/.test(s); }},
+    {label:'"항목" : 숫자 데이터가 4개 이상 있다', test:function(s){ return countMatch(s,/"[^"]+"\s*:\s*\d+/g) >= 4; }}
+  ],
+  hint:'따옴표와 콜론, 숫자의 형식을 지키세요.',
+  hintCode:'pie title 좋아하는 과목 설문 (24명)\n  "체육" : 10\n  "미술" : 6\n  "수학" : 5\n  "국어" : 3'
+},
+{
+  chip:'8', level:'자료 표현', title:'간트 차트 — 프로젝트 수업 계획',
+  intro:'<p>기간이 있는 계획은 간트 차트로 그립니다. <code>section</code>으로 단계를 나누고, 각 줄은 <code>작업 이름 : 시작일, 기간</code>입니다.</p>'
+  + '<pre>gantt\n  title 프로젝트 수업\n  dateFormat YYYY-MM-DD\n  section 준비\n  주제 정하기 : 2026-11-02, 3d</pre>'
+  + '<p><code>3d</code>는 3일, <code>1w</code>는 1주입니다.</p>',
+  task:'프로젝트 수업 계획을 완성하세요. <strong>section 2개 이상, 작업 4개 이상</strong>이 필요합니다.',
+  starter:'gantt\n  title 11월 프로젝트 수업 계획\n  dateFormat YYYY-MM-DD\n  section 준비\n  주제 정하기 : 2026-11-02, 3d',
+  checks:[
+    {label:'gantt 선언과 dateFormat이 있다', test:function(s){ return /^\s*gantt/m.test(s) && /dateFormat/.test(s); }},
+    {label:'section이 2개 이상 있다', test:function(s){ return countMatch(s,/^\s*section\s+\S/gm) >= 2; }},
+    {label:'날짜가 있는 작업이 4개 이상 있다', test:function(s){ return countMatch(s,/:\s*\d{4}-\d{2}-\d{2}\s*,/g) >= 4; }}
+  ],
+  hint:'실행 section을 추가하고 작업을 이어 붙이세요.',
+  hintCode:'gantt\n  title 11월 프로젝트 수업 계획\n  dateFormat YYYY-MM-DD\n  section 준비\n  주제 정하기 : 2026-11-02, 3d\n  자료 조사 : 2026-11-05, 5d\n  section 실행\n  모둠 활동 : 2026-11-10, 7d\n  발표회 : 2026-11-17, 2d'
+},
+{
+  chip:'9', level:'종합 미션', title:'나의 수업 한 차시 설계도',
+  intro:'<p>마지막 미션은 <strong>자유 설계</strong>입니다. 다음 주에 실제로 할 수업 한 차시를 순서도로 설계하세요. 학생 반응에 따라 갈라지는 지점(분기)을 반드시 넣는 것이 핵심입니다 — 수업 설계에서 가장 중요한 "만약에"를 그림으로 만드는 연습입니다.</p>'
+  + '<div class="tip"><span class="tiptitle">활용</span><br>완성한 설계도는 옵시디언 노트에 <code>```mermaid</code> 코드 블록으로 붙여 넣으면 수업 기록과 함께 보관됩니다. AI에게 이 코드를 주고 "이 수업의 약점을 찾아 줘"라고 요청할 수도 있습니다.</div>',
+  task:'조건: <strong>상자 6개 이상</strong>, <strong>판단 마름모 1개 이상</strong>, <strong>라벨 있는 화살표 2개 이상</strong>, <strong>화살표 6개 이상</strong>. 내용은 여러분의 실제 수업으로 채우세요.',
+  starter:'%% 나의 수업 흐름도를 자유롭게 설계해 보세요\ngraph TD\n  A[수업 시작] --> B[동기 유발]',
+  checks:[
+    {label:'상자 [ ] 가 6개 이상 있다', test:function(s){ return countMatch(s,/\[[^\]]+\]/g) >= 6; }},
+    {label:'판단 마름모 { } 가 있다', test:function(s){ return /\{[^}]+\}/.test(s); }},
+    {label:'라벨 있는 화살표(|라벨|)가 2개 이상 있다', test:function(s){ return countMatch(s,/\|[^|]+\|/g) >= 2; }},
+    {label:'화살표(-->)가 6개 이상 있다', test:function(s){ return countMatch(s,/-->/g) >= 6; }}
+  ],
+  hint:'구조 예시입니다. 내용을 꼭 여러분의 수업으로 바꾸세요!',
+  hintCode:'graph TD\n  A[수업 시작] --> B[동기 유발: 사진 퀴즈]\n  B --> C[개념 설명]\n  C --> D{이해했나요?}\n  D -->|예| E[모둠 탐구 활동]\n  D -->|아니오| F[짝 설명으로 다시 확인]\n  F --> E\n  E --> G[발표와 공유]\n  G --> H[정리: 출구 티켓]'
+}
+];
+/* ===== LOGIC:END ===== */
+
+/* ---------- 앱 상태 및 UI ---------- */
+var state = {
+  current:0,
+  done:LESSONS.map(function(){return false;}),
+  answers:LESSONS.map(function(l){return l.starter || '';})
+};
+var nav = document.getElementById('nav');
+var main = document.getElementById('main');
+var renderSeq = 0, updateSeq = 0, debounceTimer = null;
+
+mermaid.initialize({ startOnLoad:false, theme:'default', securityLevel:'strict', fontFamily:"'Apple SD Gothic Neo','Malgun Gothic',sans-serif" });
+
+function renderNav(){
+  var html = '', lastLv = '';
+  LESSONS.forEach(function(l, idx){
+    if(l.level !== lastLv){ html += '<div class="lv">'+l.level+'</div>'; lastLv = l.level; }
+    html += '<button data-i="'+idx+'" class="'+(idx===state.current?'active':'')+'">'
+          + '<span>'+l.chip+' · '+l.title+'</span>' + (state.done[idx] ? '<span class="done">✓</span>' : '') + '</button>';
+  });
+  nav.innerHTML = html;
+  nav.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){ go(parseInt(b.dataset.i,10)); });
+  });
+  var doneCount = state.done.filter(Boolean).length;
+  document.getElementById('progressText').textContent = doneCount + ' / ' + LESSONS.length;
+  document.getElementById('progressBar').style.width = (doneCount / LESSONS.length * 100) + '%';
+}
+
+function go(i){
+  state.current = i;
+  if(i >= LESSONS.length){ renderFinish(); } else { renderLesson(); }
+  renderNav();
+  window.scrollTo(0,0);
+}
+
+function headHtml(l){
+  return '<div class="lesson-head"><span class="booknum">'+l.chip+'</span><h2>'+l.title+'</h2></div>'
+       + '<div class="intro">'+l.intro+'</div>'
+       + '<div class="task">📝 <strong>미션</strong><br>'+l.task+'</div>';
+}
+function footerHtml(idx, labelOverride){
+  var last = idx+1 >= LESSONS.length;
+  return '<div class="footer-nav">'
+    + (idx > 0 ? '<button class="btn" id="prevBtn">← 이전</button>' : '')
+    + '<button class="btn primary" id="nextBtn" disabled>'+(labelOverride || (last ? '실습 마치기 🎓' : '다음 단계 →'))+'</button>'
+    + '<span class="status-msg" id="statusMsg">🎉 통과! 다음으로 넘어가세요.</span>'
+    + '</div>';
+}
+function bindFooter(idx){
+  if(idx > 0){ document.getElementById('prevBtn').addEventListener('click', function(){ go(idx-1); }); }
+  document.getElementById('nextBtn').addEventListener('click', function(){ go(idx+1); });
+}
+
+function renderLesson(){
+  var idx = state.current;
+  var l = LESSONS[idx];
+
+  if(l.type === 'info'){
+    main.innerHTML = '<div class="card">'+headHtml(l) + footerHtml(idx, '시작하기 →') + '</div>';
+    bindFooter(idx);
+    applyPass(idx, true);
+    return;
+  }
+
+  main.innerHTML =
+    '<div class="card">'+headHtml(l)+'</div>'
+    + '<div class="work">'
+    + '<div class="pane"><div class="pane-title">✏️ 여기에 머메이드 문법을 작성하세요 <button class="hintbtn" id="hintBtn">힌트 보기</button></div><textarea id="editor" spellcheck="false"></textarea></div>'
+    + '<div class="pane"><div class="pane-title">👀 실시간 다이어그램</div><div class="preview" id="preview"></div></div>'
+    + '</div>'
+    + '<div class="hint" id="hintBox">💡 ' + l.hint + (l.hintCode ? '<pre>'+escapeHtml(l.hintCode)+'</pre>' : '') + '</div>'
+    + '<div class="checks card"><h3>통과 조건</h3><div id="checkList"></div>'
+    + footerHtml(idx) + '</div>';
+
+  var editor = document.getElementById('editor');
+  editor.value = state.answers[idx];
+  document.getElementById('hintBtn').addEventListener('click', function(){
+    document.getElementById('hintBox').classList.toggle('show');
+  });
+  bindFooter(idx);
+  editor.addEventListener('input', function(){
+    state.answers[idx] = editor.value;
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(function(){ update(idx); }, 200);
+  });
+  update(idx);
+}
+
+async function update(idx){
+  var my = ++updateSeq;
+  var l = LESSONS[idx];
+  var src = state.answers[idx];
+
+  var parseOk = true, errMsg = '';
+  try { await mermaid.parse(src); }
+  catch(e){ parseOk = false; errMsg = (e && e.message) ? e.message : '문법 오류'; }
+  if(my !== updateSeq) return;
+
+  var pv = document.getElementById('preview');
+  if(!pv) return;
+  if(parseOk){
+    try {
+      var r = await mermaid.render('mm' + (++renderSeq), src);
+      if(my !== updateSeq) return;
+      pv.innerHTML = r.svg;
+    } catch(e){
+      parseOk = false; errMsg = (e && e.message) ? e.message : '렌더링 오류';
+    }
+  }
+  if(!parseOk){
+    pv.innerHTML = '<div class="mm-error">⚠️ 아직 다이어그램이 완성되지 않았습니다. 문법을 확인해 보세요.<span>'
+      + escapeHtml(String(errMsg)).slice(0,180) + '</span></div>';
+  }
+
+  var allPass = parseOk;
+  var rows = l.checks.map(function(c){
+    var pass = false;
+    try{ pass = !!c.test(src); }catch(e){ pass = false; }
+    if(!pass) allPass = false;
+    return '<div class="check '+(pass?'pass':'')+'"><span class="mark">'+(pass?'✓':'○')+'</span><span>'+c.label+'</span></div>';
+  });
+  rows.push('<div class="check '+(parseOk?'pass':'')+'"><span class="mark">'+(parseOk?'✓':'○')+'</span><span>🧩 문법 오류 없이 다이어그램이 그려진다</span></div>');
+  var cl = document.getElementById('checkList');
+  if(cl) cl.innerHTML = rows.join('');
+  applyPass(idx, allPass);
+}
+
+function applyPass(idx, allPass){
+  var next = document.getElementById('nextBtn');
+  var msg = document.getElementById('statusMsg');
+  if(!next) return;
+  next.disabled = !allPass;
+  msg.classList.toggle('show', allPass);
+  if(allPass && !state.done[idx]){ state.done[idx] = true; renderNav(); }
+}
+
+function renderFinish(){
+  main.innerHTML =
+    '<div class="card finish">'
+    + '<div class="big">🧜‍♀️</div>'
+    + '<h2>머메이드 실습 완주!</h2>'
+    + '<p>순서도, 분기, 시퀀스, 마인드맵, 타임라인, 파이, 간트까지 — 일곱 가지 다이어그램을 전부 텍스트로 그렸습니다.</p>'
+    + '<p>마지막에 만든 <strong>수업 설계도</strong>를 옵시디언 노트의 <code>```mermaid</code> 코드 블록에 붙여 넣어 보세요. 수업 기록과 설계도가 한 노트에 남습니다.</p>'
+    + '<p style="margin-top:16px"><button class="btn primary" onclick="location.reload()">처음부터 다시 하기</button></p>'
+    + '<p class="note">※ 이 페이지는 저장 기능이 없습니다. 남기고 싶은 다이어그램 코드는 옵시디언 노트로 복사해 두세요.</p>'
+    + '</div>';
+}
+
+renderNav();
+renderLesson();
+</script>
+</body>
+</html>
