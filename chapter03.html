@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 03 — 기본 마크다운 문법 익히기 (실습)</title>
+<style>
+  :root{
+    --bg:#f7f5fc; --card:#ffffff; --ink:#2a2438; --sub:#6d6580;
+    --line:#e8e3f4; --accent:#8b5cf6; --accent-deep:#6d3ef0; --accent-soft:#f1ecfd;
+    --ok:#1a9e6c; --ok-soft:#e6f6ef;
+    --code-bg:#f4f1fb; --radius:14px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.65;
+  }
+  header{
+    background:var(--card); border-bottom:1px solid var(--line);
+    padding:14px 24px; display:flex; align-items:center; gap:16px;
+    position:sticky; top:0; z-index:20;
+  }
+  .chapter-chip{font-size:.7rem; font-weight:700; color:#fff; background:var(--accent); border-radius:99px; padding:4px 12px; flex-shrink:0;}
+  header h1{font-size:1.05rem; font-weight:800;}
+  header .sub{font-size:.78rem; color:var(--sub);}
+  .progress-wrap{margin-left:auto; display:flex; align-items:center; gap:10px; font-size:.85rem; color:var(--sub);}
+  .bar{width:150px; height:8px; background:var(--line); border-radius:99px; overflow:hidden;}
+  .bar i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent-deep)); border-radius:99px; transition:width .3s;}
+  .layout{display:flex; max-width:1400px; margin:0 auto; min-height:calc(100vh - 61px);}
+  nav{width:260px; flex-shrink:0; padding:20px 12px; border-right:1px solid var(--line); background:var(--card);}
+  nav .lv{font-size:.7rem; font-weight:800; color:var(--accent-deep); letter-spacing:.08em; margin:16px 8px 6px;}
+  nav button{
+    display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+    padding:9px 10px; border:none; background:none; border-radius:10px;
+    font-size:.86rem; color:var(--ink); cursor:pointer; font-family:inherit;
+  }
+  nav button:hover{background:var(--accent-soft);}
+  nav button.active{background:var(--accent); color:#fff; font-weight:600;}
+  nav button .done{margin-left:auto; color:var(--ok); font-weight:700;}
+  nav button.active .done{color:#e5d9fd;}
+  main{flex:1; padding:24px; min-width:0;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:16px;}
+  .lesson-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .badge{font-size:.7rem; font-weight:700; padding:3px 10px; border-radius:99px; background:var(--accent-soft); color:var(--accent-deep);}
+  .booknum{font-size:.7rem; font-weight:700; padding:3px 8px; border-radius:6px; background:var(--accent); color:#fff;}
+  .lesson-head h2{font-size:1.25rem;}
+  .intro{margin-top:10px; font-size:.95rem;}
+  .intro p{margin:8px 0;}
+  .intro code, .task code{background:var(--code-bg); padding:2px 6px; border-radius:6px; font-size:.85em; font-family:Consolas,Menlo,monospace;}
+  .intro pre{background:var(--code-bg); border-radius:10px; padding:12px 14px; margin:10px 0; overflow-x:auto; font-size:.85rem; font-family:Consolas,Menlo,monospace; line-height:1.55;}
+  .tip{background:linear-gradient(0deg,#faf7ff,#faf7ff); border:1.5px solid #ddc9ff; border-radius:12px; padding:12px 16px; margin:12px 0; font-size:.88rem;}
+  .tip .tiptitle{display:inline-block; font-weight:800; color:#fff; background:var(--accent-deep); border-radius:8px; padding:2px 10px; font-size:.75rem; margin-bottom:6px;}
+  .task{background:var(--accent-soft); border-radius:10px; padding:14px 16px; margin-top:14px; font-size:.93rem;}
+  .task strong{color:var(--accent-deep);}
+  .work{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:900px){ .work{grid-template-columns:1fr;} .layout{flex-direction:column;} nav{width:100%; display:flex; flex-wrap:wrap; border-right:none; border-bottom:1px solid var(--line);} nav .lv{width:100%;} nav button{width:auto;} }
+  .pane{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column;}
+  .pane-title{font-size:.78rem; font-weight:700; color:var(--sub); padding:10px 14px; border-bottom:1px solid var(--line); background:#fbf9ff; display:flex; align-items:center;}
+  .pane-title .hintbtn{margin-left:auto; font-size:.75rem; border:1px solid var(--line); background:#fff; border-radius:8px; padding:3px 10px; cursor:pointer; color:var(--sub); font-family:inherit;}
+  textarea{
+    width:100%; flex:1; min-height:300px; border:none; resize:vertical; padding:14px;
+    font-family:Consolas,Menlo,'Malgun Gothic',monospace; font-size:.9rem; line-height:1.7;
+    outline:none; color:var(--ink); background:#fff;
+  }
+  .preview{padding:14px 16px; min-height:300px; font-size:.92rem; overflow-x:auto;}
+  .preview h1{font-size:1.5rem; margin:.5em 0 .35em;}
+  .preview h2{font-size:1.25rem; margin:.6em 0 .3em;}
+  .preview h3{font-size:1.05rem; margin:.6em 0 .3em;}
+  .preview h4{font-size:.95rem; margin:.6em 0 .3em;}
+  .preview p{margin:.45em 0;}
+  .preview ul,.preview ol{margin:.45em 0 .45em 1.5em;}
+  .preview li{margin:.15em 0;}
+  .preview li.task-item{list-style:none; margin-left:-1.2em;}
+  .preview blockquote{border-left:4px solid var(--accent); background:var(--accent-soft); padding:8px 14px; border-radius:0 8px 8px 0; margin:.6em 0; color:#4a3f6b;}
+  .preview blockquote p{margin:.15em 0;}
+  .preview hr{border:none; border-top:2px solid #d8cef0; margin:1em 0;}
+  .preview mark{background:#f3e88a; border-radius:3px; padding:0 2px;}
+  .preview table{border-collapse:collapse; margin:.6em 0;}
+  .preview th,.preview td{border:1px solid #d5cbee; padding:6px 12px; font-size:.88rem;}
+  .preview th{background:var(--accent-soft);}
+  .preview code{background:var(--code-bg); padding:2px 6px; border-radius:6px; font-size:.85em; font-family:Consolas,Menlo,monospace;}
+  .preview pre{background:var(--code-bg); border-radius:10px; padding:12px 14px; margin:.6em 0; overflow-x:auto; position:relative;}
+  .preview pre code{background:none; padding:0;}
+  .preview pre .lang{position:absolute; top:6px; right:10px; font-size:.7rem; color:var(--accent-deep); font-weight:700; text-transform:capitalize;}
+  .preview a{color:var(--accent-deep);}
+  .preview del{color:var(--sub);}
+  .checks{margin-top:16px;}
+  .checks h3{font-size:.9rem; margin-bottom:8px;}
+  .check{display:flex; gap:10px; align-items:flex-start; padding:7px 12px; border-radius:10px; font-size:.9rem; color:var(--sub); margin-bottom:4px; background:#fbf9ff; border:1px solid var(--line);}
+  .check.pass{background:var(--ok-soft); color:var(--ok); border-color:#bfe8d6; font-weight:600;}
+  .check .mark{font-weight:700; width:1.2em; flex-shrink:0;}
+  .hint{display:none; margin-top:12px; background:#fff8ed; border:1px solid #f3dfc0; border-radius:10px; padding:12px 16px; font-size:.88rem; color:#7c5a1e;}
+  .hint.show{display:block;}
+  .hint pre{background:#fff; border-radius:8px; padding:10px 12px; margin-top:8px; font-family:Consolas,Menlo,monospace; font-size:.83rem; overflow-x:auto; color:#444; white-space:pre;}
+  .footer-nav{display:flex; gap:12px; margin-top:18px; align-items:center; flex-wrap:wrap;}
+  .btn{font-family:inherit; font-size:.92rem; font-weight:600; border-radius:10px; cursor:pointer; padding:10px 20px; border:1px solid var(--line); background:var(--card); color:var(--ink);}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .btn.primary:disabled{background:#cbb8f5; border-color:#cbb8f5; cursor:not-allowed;}
+  .status-msg{font-size:.88rem; color:var(--ok); font-weight:600; display:none;}
+  .status-msg.show{display:inline;}
+  .quiz-q{background:#fbf9ff; border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin-bottom:12px;}
+  .quiz-q .qtext{font-weight:700; margin-bottom:8px;}
+  .quiz-q label{display:flex; gap:8px; align-items:center; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:.92rem;}
+  .quiz-q label:hover{background:var(--accent-soft);}
+  .quiz-q .result{font-size:.85rem; font-weight:700; margin-top:6px; display:none;}
+  .quiz-q .result.correct{display:block; color:var(--ok);}
+  .quiz-q .result.wrong{display:block; color:#c2410c;}
+  .finish{text-align:center; padding:40px 20px;}
+  .finish .big{font-size:2.4rem;}
+  .finish h2{margin:10px 0;}
+  .finish p{color:var(--sub); max-width:560px; margin:6px auto;}
+  .note{font-size:.78rem; color:var(--sub); margin-top:14px;}
+</style>
+</head>
+<body>
+<header>
+  <span class="chapter-chip">Chapter 03</span>
+  <div>
+    <h1>기본 마크다운 문법 익히기 — 실습</h1>
+    <div class="sub">책의 09~15절 순서 그대로, 직접 입력하며 익힙니다</div>
+  </div>
+  <div class="progress-wrap">
+    <span id="progressText">0 / 0</span>
+    <div class="bar"><i id="progressBar"></i></div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ===== LOGIC:BEGIN ===== */
+
+/* ---------- 마크다운 렌더러 (옵시디언 문법 지원) ---------- */
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function inlineMD(s){
+  s = s.replace(/`([^`\n]+)`/g, function(_,c){ return '<code>'+c+'</code>'; });
+  s = s.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/==([^=\n]+)==/g, '<mark>$1</mark>');
+  s = s.replace(/~~([^~\n]+)~~/g, '<del>$1</del>');
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+  return s;
+}
+var LIST_RE = /^(\s*)([-*]|\d+\.)\s+(.*)$/;
+
+function renderMD(src){
+  var lines = escapeHtml(src.replace(/\r\n/g,'\n').replace(/\t/g,'  ')).split('\n');
+  var html = [], i = 0;
+  var HR_RE = /^\s*-{3,}\s*$/;
+
+  function isTableSep(l){ return /^\s*\|?[\s:|-]*-{3,}[\s:|-]*\|?\s*$/.test(l) && l.indexOf('|') !== -1; }
+  function listItemHtml(body){
+    var cb = body.match(/^\[( |x|X)\]\s*(.*)$/);
+    if(cb){
+      return {html:'<input type="checkbox" disabled'+(cb[1].toLowerCase()==='x'?' checked':'')+'> '+inlineMD(cb[2]), task:true};
+    }
+    return {html:inlineMD(body), task:false};
+  }
+
+  while(i < lines.length){
+    var line = lines[i];
+
+    if(/^\s*$/.test(line)){ i++; continue; }
+
+    // 코드블록 (언어 지정 지원)
+    var fence = line.match(/^```\s*(\S+)?\s*$/);
+    if(fence){
+      var lang = fence[1] || '';
+      var code = []; i++;
+      while(i < lines.length && !/^```/.test(lines[i])){ code.push(lines[i]); i++; }
+      i++;
+      html.push('<pre>'+(lang?'<span class="lang">'+lang+'</span>':'')+'<code>'+code.join('\n')+'</code></pre>');
+      continue;
+    }
+    // 제목
+    var h = line.match(/^(#{1,6})\s+(.*)$/);
+    if(h){ var n=h[1].length; html.push('<h'+n+'>'+inlineMD(h[2])+'</h'+n+'>'); i++; continue; }
+    // 수평선 (빈 줄 다음이므로 여기 도달했다면 진짜 수평선)
+    if(HR_RE.test(line)){ html.push('<hr>'); i++; continue; }
+    // 인용 (이스케이프 이후이므로 &gt;)
+    if(/^&gt;\s?/.test(line)){
+      var q=[];
+      while(i < lines.length && /^&gt;\s?/.test(lines[i])){ q.push(lines[i].replace(/^&gt;\s?/,'')); i++; }
+      html.push('<blockquote>'+ q.map(function(x){return '<p>'+inlineMD(x)+'</p>';}).join('') +'</blockquote>');
+      continue;
+    }
+    // 표
+    if(line.indexOf('|') !== -1 && i+1 < lines.length && isTableSep(lines[i+1])){
+      var cellsOf = function(l){ return l.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(function(c){return c.trim();}); };
+      var head = cellsOf(line); i += 2;
+      var rows = [];
+      while(i < lines.length && lines[i].indexOf('|') !== -1 && !/^\s*$/.test(lines[i])){ rows.push(cellsOf(lines[i])); i++; }
+      html.push('<table><thead><tr>'+head.map(function(c){return '<th>'+inlineMD(c)+'</th>';}).join('')+'</tr></thead><tbody>'
+        + rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+inlineMD(c)+'</td>';}).join('')+'</tr>';}).join('') + '</tbody></table>');
+      continue;
+    }
+    // 리스트 (2수준 들여쓰기 지원)
+    if(LIST_RE.test(line)){
+      var items=[];
+      while(i < lines.length && LIST_RE.test(lines[i])){
+        var m = lines[i].match(LIST_RE);
+        items.push({ level: m[1].length >= 2 ? 1 : 0, ordered: /^\d+\.$/.test(m[2]), body: m[3] });
+        i++;
+      }
+      var out='', openSub=null, topType = items[0].ordered ? 'ol' : 'ul', liOpen=false;
+      out += '<'+topType+'>';
+      items.forEach(function(it){
+        var li = listItemHtml(it.body);
+        if(it.level === 0){
+          if(openSub){ out += '</'+openSub+'>'; openSub=null; }
+          if(liOpen){ out += '</li>'; }
+          out += '<li'+(li.task?' class="task-item"':'')+'>'+li.html;
+          liOpen = true;
+        } else {
+          if(!openSub){ openSub = it.ordered ? 'ol' : 'ul'; out += '<'+openSub+'>'; }
+          out += '<li'+(li.task?' class="task-item"':'')+'>'+li.html+'</li>';
+        }
+      });
+      if(openSub){ out += '</'+openSub+'>'; }
+      if(liOpen){ out += '</li>'; }
+      out += '</'+topType+'>';
+      html.push(out);
+      continue;
+    }
+    // 문단 (+ 세텍스트 함정: 문단 바로 아래 --- 는 수평선이 아니라 제목이 됨)
+    var p=[line];
+    i++;
+    while(i < lines.length && !/^\s*$/.test(lines[i]) &&
+          !/^(#{1,6}\s|&gt;|```)/.test(lines[i]) &&
+          !LIST_RE.test(lines[i]) &&
+          !HR_RE.test(lines[i]) &&
+          !(lines[i].indexOf('|')!==-1 && i+1<lines.length && isTableSep(lines[i+1]))){
+      p.push(lines[i]); i++;
+    }
+    if(i < lines.length && HR_RE.test(lines[i])){
+      // 책 14절의 주의점 재현: 수평선 바로 윗줄에 글자가 있으면 그 줄이 제목으로 바뀐다
+      html.push('<h2>'+p.map(inlineMD).join('<br>')+'</h2>');
+      i++;
+      continue;
+    }
+    html.push('<p>'+p.map(inlineMD).join('<br>')+'</p>');
+  }
+  return html.join('\n');
+}
+
+/* ---------- 채점 유틸 ---------- */
+function countMatch(src, re){ var m = src.match(re); return m ? m.length : 0; }
+function hasRealHr(src){
+  var ls = src.replace(/\r\n/g,'\n').split('\n');
+  for(var i=0;i<ls.length;i++){
+    if(/^\s*-{3,}\s*$/.test(ls[i]) && (i===0 || /^\s*$/.test(ls[i-1]))) return true;
+  }
+  return false;
+}
+function noSetextAccident(src){
+  var ls = src.replace(/\r\n/g,'\n').split('\n');
+  for(var i=1;i<ls.length;i++){
+    if(/^\s*-{3,}\s*$/.test(ls[i]) && !/^\s*$/.test(ls[i-1])) return false;
+  }
+  return true;
+}
+
+/* ---------- 레슨 데이터 (책 09~15절 순서) ---------- */
+var LESSONS = [
+{
+  book:'09', level:'서식 문법', title:'제목 서식으로 강조하기',
+  intro:'<p>제목은 모든 마크다운 문법 중 <strong>가장 활용도가 높습니다</strong>. <code>#</code>을 쓰고 띄어쓴 뒤 제목을 입력합니다. 소제목으로 갈수록 <code>#</code>의 개수를 늘리면 되고, 글자 크기는 작아집니다.</p><pre># 이것은 제목 1\n## 이것은 제목 2\n### 이것은 제목 3\n#### 이것은 제목 4</pre><div class="tip"><span class="tiptitle">주의</span><br>띄어쓰기 한 칸도 지켜야 하는 규칙입니다. <code>#</code>을 쓰고 띄어쓰지 않으면 제목이 아닌 <strong>태그 서식</strong>으로 인식됩니다. 옵시디언에서는 제목 왼쪽 화살표로 하위 내용을 접었다 펼 수도 있습니다.</div>',
+  task:'독서 노트의 네 줄을 <strong>제목 1 ~ 제목 4</strong>로 각각 바꿔 보세요. 위에서부터 <code>#</code>, <code>##</code>, <code>###</code>, <code>####</code> 순서입니다.',
+  starter:'우리 반 독서 노트\n\n읽은 책 정리\n\n인상 깊은 문장\n\n더 찾아볼 것',
+  checks:[
+    {label:'제목 1(#)이 있다', test:function(s){ return /^# .+/m.test(s); }},
+    {label:'제목 2(##)가 있다', test:function(s){ return /^## .+/m.test(s); }},
+    {label:'제목 3(###)이 있다', test:function(s){ return /^### .+/m.test(s); }},
+    {label:'제목 4(####)가 있다', test:function(s){ return /^#### .+/m.test(s); }},
+    {label:'# 뒤 띄어쓰기를 빠뜨린 곳이 없다', test:function(s){ return !/^#{1,6}[^#\s]/m.test(s); }}
+  ],
+  hint:'# 개수가 늘어날수록 작은 제목이 됩니다. # 뒤 공백 한 칸을 잊지 마세요.',
+  hintCode:'# 우리 반 독서 노트\n\n## 읽은 책 정리\n\n### 인상 깊은 문장\n\n#### 더 찾아볼 것'
+},
+{
+  book:'10', level:'서식 문법', title:'텍스트 꾸미기 ① 굵게 · 기울임',
+  intro:'<p>텍스트에 다양한 서식을 적용할 수 있습니다.</p><pre>**굵게 할 글자**   → 굵게\n*기울일 글자*     → 기울임</pre><div class="tip"><span class="tiptitle">1분 꿀팁</span><br>옵시디언에서는 글자를 드래그한 후 <code>Ctrl + B</code>(굵게), <code>Ctrl + I</code>(기울임) 단축키로도 서식을 넣을 수 있습니다. 맥은 <code>Cmd + B</code> / <code>Cmd + I</code> 입니다.</div>',
+  task:'수업 성찰 노트에서 <strong>"준비가 정말 중요하다"는 굵게</strong>, <strong>"토론 수업"은 기울임</strong>으로 꾸며 보세요.',
+  starter:'## 오늘 수업 성찰\n\n오늘 국어 시간에는 토론 수업을 했다. 준비가 정말 중요하다는 것을 느꼈다. 다음에는 자료 조사 시간을 더 주어야겠다.',
+  checks:[
+    {label:'**굵게** 처리한 부분이 있다', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s); }},
+    {label:'*기울임* 처리한 부분이 있다', test:function(s){ return /(^|[^*])\*[^*\n]+\*(?!\*)/m.test(s); }}
+  ],
+  hint:'별표 2개로 감싸면 굵게, 1개로 감싸면 기울임입니다.',
+  hintCode:'오늘 국어 시간에는 *토론 수업*을 했다. **준비가 정말 중요하다**는 것을 느꼈다.'
+},
+{
+  book:'10', level:'서식 문법', title:'텍스트 꾸미기 ② 취소선 · 형광펜',
+  intro:'<p>취소된 내용에는 취소선을, 눈에 띄어야 할 내용에는 형광펜(하이라이트)을 씁니다.</p><pre>~~취소할 글자~~   → 취소선\n==강조할 글자==   → 형광펜 효과</pre><div class="tip"><span class="tiptitle">알아두기</span><br><code>==강조==</code>는 옵시디언이 지원하는 <strong>확장 문법</strong>입니다. 노션 등 다른 앱에서는 적용되지 않을 수 있습니다.</div>',
+  task:'준비물 노트에서 <strong>취소된 "색연필"에는 취소선</strong>을, <strong>"가위와 풀"에는 형광펜(==)</strong>을 적용해 보세요.',
+  starter:'## 미술 시간 준비물\n\n색연필 (이번 주는 사용하지 않아요)\n\n가위와 풀은 꼭 챙겨 오세요.',
+  checks:[
+    {label:'~~취소선~~ 처리한 부분이 있다', test:function(s){ return /~~[^~\n]+~~/.test(s); }},
+    {label:'==형광펜== 처리한 부분이 있다', test:function(s){ return /==[^=\n]+==/.test(s); }}
+  ],
+  hint:'물결 2개로 감싸면 취소선, 등호 2개로 감싸면 형광펜입니다.',
+  hintCode:'~~색연필~~ (이번 주는 사용하지 않아요)\n\n==가위와 풀==은 꼭 챙겨 오세요.'
+},
+{
+  book:'11', level:'서식 문법', title:'인용문 서식 넣기',
+  intro:'<p>누군가 한 말을 쓰거나 책의 내용을 발췌할 때 인용문을 사용합니다. <code>&gt;</code>를 쓰고 띄어써서 입력합니다. <strong>엔터를 쳐서 개행하면 다음 행에도 인용문이 적용됩니다.</strong></p><pre>&gt; 이런 식으로\n&gt; 여러 줄에 걸쳐서\n&gt; 인용문을 작성할 수 있다\n&gt;      - 시안</pre>',
+  task:'급훈 문장을 <strong>여러 줄 인용문</strong>으로 만들어 보세요. 두 줄 이상으로 나누고, 마지막 줄에는 <strong><code>&gt; - 5학년 2반</code></strong>처럼 출처를 붙입니다.',
+  starter:'## 우리 반 급훈\n\n스스로 생각하고 함께 성장하자 (5학년 2반)',
+  checks:[
+    {label:'인용문(>) 행이 2줄 이상 이어진다', test:function(s){ return countMatch(s,/^> ?.+/gm) >= 2; }},
+    {label:'출처를 적은 인용 행(> - ...)이 있다', test:function(s){ return /^> ?- .+/m.test(s); }}
+  ],
+  hint:'각 줄 앞에 > 를 붙이면 하나의 인용 상자로 이어집니다.',
+  hintCode:'> 스스로 생각하고\n> 함께 성장하자\n> - 5학년 2반'
+},
+{
+  book:'12', level:'서식 문법', title:'코드 블록과 인라인 코드 넣기',
+  intro:'<p>문장 안에 코드를 넣는 <strong>인라인 코드</strong>는 백틱(<code>`</code>) 기호로 글자를 감쌉니다. 백틱은 키보드에서 숫자 1 왼쪽에 있습니다. 여러 줄 <strong>코드 블록</strong>은 백틱 3개(<code>```</code>)로 감쌉니다.</p><pre>```python\nprint("hello")\nprint("obsidian")\n```</pre><p>처음 <code>```</code> 오른쪽에 프로그래밍 언어를 입력하면 해당 언어 문법대로 하이라이팅됩니다.</p><div class="tip"><span class="tiptitle">1분 꿀팁</span><br>코드 블록에 <code>mermaid</code>라고 쓰고 머메이드 문법을 적으면 <strong>다이어그램</strong>이 그려집니다. 문자로 순서도를 그리고 싶을 때 활용해 보세요.</div>',
+  task:'메모 속 <strong><code>print("안녕하세요")</code>는 인라인 코드</strong>로 감싸고, 아래 실습 코드 두 줄은 <strong>python 언어를 지정한 코드 블록</strong>으로 만들어 보세요.',
+  starter:'## 코딩 동아리 수업 메모\n\n첫 시간에는 print("안녕하세요") 를 실행해 봅니다.\n\n실습 코드\nprint("hello")\nprint("obsidian")',
+  checks:[
+    {label:'`인라인 코드`가 있다', test:function(s){ return /`[^`\n]+`/.test(s); }},
+    {label:'```python 으로 시작하는 코드 블록이 있다', test:function(s){ return /^```python\s*$/m.test(s); }},
+    {label:'코드 블록이 ``` 로 닫혀 있다', test:function(s){ return countMatch(s,/^```/gm) >= 2; }}
+  ],
+  hint:'여는 백틱 3개 옆에 언어 이름을 붙이고, 닫는 백틱 3개를 잊지 마세요.',
+  hintCode:'첫 시간에는 `print("안녕하세요")` 를 실행해 봅니다.\n\n```python\nprint("hello")\nprint("obsidian")\n```'
+},
+{
+  book:'13', level:'리스트', title:'일반 리스트와 들여쓰기',
+  intro:'<p><code>-</code>를 쓰고 띄어 쓰면 리스트 입력 모드로 전환됩니다. 엔터로 개행하면 다음 행에도 리스트가 적용됩니다.</p><pre>- 리스트는 공통적으로 다음 기능을 가집니다.\n  - Tab으로 들여서 쓸 수 있고\n- Shift+Tab으로 내어 쓸 수 있습니다.</pre><div class="tip"><span class="tiptitle">알아두기</span><br>옵시디언에서는 <code>Tab</code>으로 들여쓰고 <code>Shift + Tab</code>으로 내어씁니다. 이 실습 편집기에서는 <strong>공백 2칸</strong>으로 들여쓰세요. 리스트도 제목처럼 화살표로 접었다 펼 수 있습니다.</div>',
+  task:'모둠 활동 준비물을 <strong>리스트 2개 이상</strong>으로 정리하고, "색연필" 아래에 <strong>들여쓴 하위 리스트</strong>(공백 2칸 + <code>-</code>)로 "모둠당 한 세트"를 붙여 보세요.',
+  starter:'## 모둠 활동 준비\n\n준비물은 활동지와 색연필입니다. 색연필은 모둠당 한 세트만 씁니다.',
+  checks:[
+    {label:'리스트(- ) 항목이 2개 이상 있다', test:function(s){ return countMatch(s,/^- .+/gm) >= 2; }},
+    {label:'들여쓴 하위 리스트가 있다', test:function(s){ return /^(\s{2,}|\t)- .+/m.test(s); }}
+  ],
+  hint:'하위 항목은 줄 맨 앞에 공백 2칸을 넣고 - 를 씁니다.',
+  hintCode:'- 활동지\n- 색연필\n  - 모둠당 한 세트'
+},
+{
+  book:'13', level:'리스트', title:'태스크 리스트',
+  intro:'<p>대시와 대괄호의 조합인 <code>- [ ]</code> 처럼 입력하면 체크박스가 됩니다. <strong><code>-</code> 기호와 <code>[</code> 기호 사이에 공란, <code>[</code> 와 <code>]</code> 기호 사이에 공란을 꼭 넣어야 합니다.</strong> 체크 표시는 <code>- [x]</code>로 하거나, 생성된 체크 박스를 마우스로 클릭해도 됩니다.</p><pre>- [ ] 태스크 리스트도 마찬가지로\n  - [ ] 들여서 쓸 수 있습니다.\n- [x] 그리고 체크 표시도 할 수 있습니다</pre>',
+  task:'내일 할 일 세 가지를 <strong>태스크 리스트</strong>로 만들어 보세요. 이미 끝낸 <strong>"교실 환기"는 체크된 상태(- [x])</strong>로 표시합니다.',
+  starter:'## 내일 할 일\n\n수행평가 채점, 가정통신문 발송, 교실 환기(완료)',
+  checks:[
+    {label:'빈 체크박스(- [ ])가 2개 이상 있다', test:function(s){ return countMatch(s,/^\s*- \[ \] .+/gm) >= 2; }},
+    {label:'체크된 체크박스(- [x])가 1개 있다', test:function(s){ return countMatch(s,/^\s*- \[[xX]\] .+/gm) >= 1; }}
+  ],
+  hint:'대시, 공란, 대괄호 순서를 정확히 지키세요: - [ ]',
+  hintCode:'- [ ] 수행평가 채점\n- [ ] 가정통신문 발송\n- [x] 교실 환기'
+},
+{
+  book:'13', level:'리스트', title:'숫자 리스트',
+  intro:'<p>숫자 리스트는 <strong>숫자를 입력하고 점(<code>.</code>) 기호를 입력한 뒤 띄어쓰면</strong> 됩니다. 엔터로 개행을 하면 자동으로 번호가 증가합니다.</p><pre>1. 첫 번째 리스트\n2. 두 번째 리스트\n3. 세 번째 리스트</pre><div class="tip"><span class="tiptitle">1분 꿀팁</span><br>제목과 리스트를 많이 사용한 노트에서는 명령어 팔레트의 \'Fold all headings and lists\'로 모두 접고, \'Unfold all headings and lists\'로 모두 펼칠 수 있습니다.</div>',
+  task:'과학 실험 절차 세 단계를 <strong>숫자 리스트</strong>로 정리해 보세요.',
+  starter:'## 용해 실험 절차\n\n비커에 물을 붓고, 소금을 한 숟가락 넣고, 유리 막대로 저어서 녹입니다.',
+  checks:[
+    {label:'숫자 리스트(1. ) 항목이 3개 이상 있다', test:function(s){ return countMatch(s,/^\d+\. .+/gm) >= 3; }}
+  ],
+  hint:'모두 1. 로 써도 자동으로 번호가 매겨집니다.',
+  hintCode:'1. 비커에 물을 붓는다\n2. 소금을 한 숟가락 넣는다\n3. 유리 막대로 저어서 녹인다'
+},
+{
+  book:'14', level:'구조', title:'수평선으로 구간 나누기',
+  intro:'<p>수평선은 대시를 세 번(<code>---</code>) 연속 입력하여 삽입합니다. <strong>주의점은 수평선 바로 윗줄에 글자가 있으면 수평선이 적용되지 않는다는 것</strong>입니다. 바로 윗줄의 글자가 <strong>제목으로 취급</strong>됩니다.</p><div class="tip"><span class="tiptitle">직접 확인</span><br>지금 오른쪽 미리보기를 보세요. 애국가 1절이 커다란 제목으로 바뀌어 있습니다. <code>---</code> 바로 윗줄에 글자가 붙어 있기 때문입니다.</div>',
+  task:'<strong><code>---</code> 위에 빈 줄을 넣어</strong> 1절이 제목으로 변하는 문제를 해결하고, 1절과 2절 사이에 수평선이 제대로 나타나게 만들어 보세요.',
+  starter:'동해물과 백두산이 마르고 닳도록\n하느님이 보우하사 우리나라 만세\n---\n무궁화 삼천리 화려강산\n대한 사람 대한으로 길이 보전하세',
+  checks:[
+    {label:'빈 줄 다음에 오는 진짜 수평선(---)이 있다', test:function(s){ return hasRealHr(s); }},
+    {label:'글자 바로 아래 붙은 --- 가 없다 (제목 변신 방지)', test:function(s){ return noSetextAccident(s); }},
+    {label:'1절과 2절 가사가 모두 남아 있다', test:function(s){ return s.indexOf('동해물') !== -1 && s.indexOf('무궁화') !== -1; }}
+  ],
+  hint:'수평선 위는 비워 둡니다.',
+  hintCode:'동해물과 백두산이 마르고 닳도록\n하느님이 보우하사 우리나라 만세\n\n---\n\n무궁화 삼천리 화려강산\n대한 사람 대한으로 길이 보전하세'
+},
+{
+  book:'15', level:'보기 방식', title:'옵시디언의 노트 보기 방식 (퀴즈)',
+  type:'quiz',
+  intro:'<p>옵시디언에는 세 가지 보기 방식이 있습니다.</p><p><strong>프리뷰 모드</strong> — 기본 지정 모드. 작성 중이거나 클릭한 부분은 마크다운 문자가 보이지만, 선택에서 벗어나면 자동으로 서식이 적용됩니다.<br><strong>소스 모드</strong> — 원본 마크다운 형식을 직접 편집합니다. 복잡한 문법을 직접 확인할 수 있지만 가독성이 좋지 않습니다.<br><strong>읽기 모드</strong> — 수정이 불가능합니다. 실수로 수정할 걱정 없이 읽기에 집중할 때 사용합니다.</p><div class="tip"><span class="tiptitle">알아두기</span><br>노트 오른쪽 위 메뉴(⋮)에서 모드를 바꿀 수 있고, <code>Ctrl + E</code>로 읽기 모드를 오갈 수 있습니다. 책 모양 아이콘은 읽기 모드, 펜 모양 아이콘은 편집 모드입니다.</div>',
+  task:'아래 퀴즈를 모두 맞히면 다음 단계로 넘어갑니다.',
+  questions:[
+    {q:'마크다운 원본을 그대로 보면서 직접 편집하는 모드는?', options:['프리뷰 모드','소스 모드','읽기 모드'], answer:1},
+    {q:'수정이 불가능해서, 실수 걱정 없이 읽기에 집중할 수 있는 모드는?', options:['프리뷰 모드','소스 모드','읽기 모드'], answer:2},
+    {q:'기본 지정 모드로, 선택에서 벗어난 부분은 자동으로 서식이 적용되는 모드는?', options:['프리뷰 모드','소스 모드','읽기 모드'], answer:0},
+    {q:'옵시디언에서 생성한 노트 파일 이름 뒤에 붙는 확장자는?', options:['.txt','.md','.hwp'], answer:1}
+  ],
+  hint:''
+},
+{
+  book:'종합', level:'종합 실습', title:'나의 수업 일지 노트 완성하기',
+  intro:'<p>이 챕터에서 배운 문법을 모두 모아, 옵시디언에 쓸 법한 <strong>수업 일지 노트</strong>를 완성합니다.</p><p>서식 없는 평문을 아래 조건에 맞게 구조화하세요. 문장을 다듬거나 순서를 바꿔도 좋습니다.</p>',
+  task:'조건: <strong>제목 2수준(#, ##)</strong> · <strong>굵게</strong> · <strong>==형광펜==</strong> · <strong>태스크 리스트 3개 이상</strong> · <strong>숫자 리스트 2개 이상</strong> · <strong>인용문</strong> · <strong>빈 줄을 지킨 수평선</strong>을 모두 포함할 것.',
+  starter:'7월 24일 수업 일지. 오늘의 다짐은 칭찬을 아끼지 말자였다. 1교시 수학은 분수의 나눗셈을 배웠는데 순서는 개념 설명 다음 짝 활동 다음 확인 문제였다. 학생들이 어려워해서 내일 보충이 필요하다. 내일 할 일은 수학 보충 자료 만들기, 알림장 쓰기, 상담 일지 정리이다. 다음 주 공개수업 준비가 가장 중요하다.',
+  checks:[
+    {label:'제목 1(#)과 제목 2(##)가 모두 있다', test:function(s){ return /^# .+/m.test(s) && /^## .+/m.test(s); }},
+    {label:'굵은 글씨가 있다', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s); }},
+    {label:'==형광펜== 강조가 있다', test:function(s){ return /==[^=\n]+==/.test(s); }},
+    {label:'태스크 리스트가 3개 이상 있다', test:function(s){ return countMatch(s,/^\s*- \[[ xX]\] .+/gm) >= 3; }},
+    {label:'숫자 리스트가 2개 이상 있다', test:function(s){ return countMatch(s,/^\d+\. .+/gm) >= 2; }},
+    {label:'인용문(>)이 있다', test:function(s){ return /^> ?.+/m.test(s); }},
+    {label:'빈 줄을 지킨 수평선(---)이 있고, 제목 변신 사고가 없다', test:function(s){ return hasRealHr(s) && noSetextAccident(s); }}
+  ],
+  hint:'다짐은 인용문으로, 수업 순서는 숫자 리스트로, 할 일은 태스크 리스트로 정리하는 구조를 추천합니다.',
+  hintCode:'# 7월 24일 수업 일지\n\n> 오늘의 다짐: 칭찬을 아끼지 말자\n\n## 1교시 수학 — 분수의 나눗셈\n\n1. 개념 설명\n2. 짝 활동\n3. 확인 문제\n\n학생들이 어려워해서 **내일 보충이 필요하다**.\n\n---\n\n## 내일 할 일\n\n- [ ] 수학 보충 자료 만들기\n- [ ] 알림장 쓰기\n- [ ] 상담 일지 정리\n\n==다음 주 공개수업 준비==가 가장 중요하다.'
+}
+];
+/* ===== LOGIC:END ===== */
+
+/* ---------- 앱 상태 및 UI ---------- */
+var state = {
+  current:0,
+  done:LESSONS.map(function(){return false;}),
+  answers:LESSONS.map(function(l){return l.starter || '';}),
+  quiz:LESSONS.map(function(){return {};})
+};
+
+var nav = document.getElementById('nav');
+var main = document.getElementById('main');
+
+function renderNav(){
+  var html = '', lastLv = '';
+  LESSONS.forEach(function(l, idx){
+    if(l.level !== lastLv){ html += '<div class="lv">'+l.level+'</div>'; lastLv = l.level; }
+    html += '<button data-i="'+idx+'" class="'+(idx===state.current?'active':'')+'">'
+          + '<span>'+(idx+1)+'. '+l.title+'</span>' + (state.done[idx] ? '<span class="done">✓</span>' : '') + '</button>';
+  });
+  nav.innerHTML = html;
+  nav.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){ go(parseInt(b.dataset.i,10)); });
+  });
+  var doneCount = state.done.filter(Boolean).length;
+  document.getElementById('progressText').textContent = doneCount + ' / ' + LESSONS.length;
+  document.getElementById('progressBar').style.width = (doneCount / LESSONS.length * 100) + '%';
+}
+
+function go(i){
+  state.current = i;
+  if(i >= LESSONS.length){ renderFinish(); } else { renderLesson(); }
+  renderNav();
+  window.scrollTo(0,0);
+}
+
+function headHtml(l){
+  return '<div class="lesson-head"><span class="booknum">'+l.book+'</span><span class="badge">'+l.level+'</span><h2>'+l.title+'</h2></div>'
+       + '<div class="intro">'+l.intro+'</div>'
+       + '<div class="task">📝 <strong>실습 과제</strong><br>'+l.task+'</div>';
+}
+
+function renderLesson(){
+  var idx = state.current;
+  var l = LESSONS[idx];
+
+  if(l.type === 'quiz'){ renderQuiz(idx); return; }
+
+  main.innerHTML =
+    '<div class="card">'+headHtml(l)+'</div>'
+    + '<div class="work">'
+    + '<div class="pane"><div class="pane-title">✏️ 여기에 마크다운을 작성하세요 <button class="hintbtn" id="hintBtn">힌트 보기</button></div><textarea id="editor" spellcheck="false"></textarea></div>'
+    + '<div class="pane"><div class="pane-title">👀 실시간 미리보기 (프리뷰 모드처럼 동작합니다)</div><div class="preview" id="preview"></div></div>'
+    + '</div>'
+    + '<div class="hint" id="hintBox">💡 ' + l.hint + (l.hintCode ? '<pre>'+escapeHtml(l.hintCode)+'</pre>' : '') + '</div>'
+    + '<div class="checks card"><h3>통과 조건</h3><div id="checkList"></div>'
+    + footerHtml(idx) + '</div>';
+
+  var editor = document.getElementById('editor');
+  editor.value = state.answers[idx];
+  document.getElementById('hintBtn').addEventListener('click', function(){
+    document.getElementById('hintBox').classList.toggle('show');
+  });
+  bindFooter(idx);
+  editor.addEventListener('input', function(){
+    state.answers[idx] = editor.value;
+    update(idx);
+  });
+  update(idx);
+}
+
+function footerHtml(idx){
+  return '<div class="footer-nav">'
+    + (idx > 0 ? '<button class="btn" id="prevBtn">← 이전</button>' : '')
+    + '<button class="btn primary" id="nextBtn" disabled>'+(idx+1 < LESSONS.length ? '다음 단계 →' : '마치기 🎓')+'</button>'
+    + '<span class="status-msg" id="statusMsg">🎉 통과! 다음으로 넘어가세요.</span>'
+    + '</div>';
+}
+function bindFooter(idx){
+  if(idx > 0){ document.getElementById('prevBtn').addEventListener('click', function(){ go(idx-1); }); }
+  document.getElementById('nextBtn').addEventListener('click', function(){ go(idx+1); });
+}
+
+function update(idx){
+  var l = LESSONS[idx];
+  var src = state.answers[idx];
+  document.getElementById('preview').innerHTML = renderMD(src);
+  var allPass = true;
+  document.getElementById('checkList').innerHTML = l.checks.map(function(c){
+    var pass = false;
+    try{ pass = !!c.test(src); }catch(e){ pass = false; }
+    if(!pass) allPass = false;
+    return '<div class="check '+(pass?'pass':'')+'"><span class="mark">'+(pass?'✓':'○')+'</span><span>'+c.label+'</span></div>';
+  }).join('');
+  applyPass(idx, allPass);
+}
+
+function applyPass(idx, allPass){
+  document.getElementById('nextBtn').disabled = !allPass;
+  document.getElementById('statusMsg').classList.toggle('show', allPass);
+  if(allPass && !state.done[idx]){ state.done[idx] = true; renderNav(); }
+}
+
+function renderQuiz(idx){
+  var l = LESSONS[idx];
+  var qHtml = l.questions.map(function(q, qi){
+    var opts = q.options.map(function(o, oi){
+      var checked = state.quiz[idx][qi] === oi ? ' checked' : '';
+      return '<label><input type="radio" name="q'+qi+'" value="'+oi+'"'+checked+'> '+o+'</label>';
+    }).join('');
+    return '<div class="quiz-q" data-q="'+qi+'"><div class="qtext">Q'+(qi+1)+'. '+q.q+'</div>'+opts+'<div class="result" id="result'+qi+'"></div></div>';
+  }).join('');
+
+  main.innerHTML =
+    '<div class="card">'+headHtml(l)+'</div>'
+    + '<div class="card"><h3 style="font-size:.95rem; margin-bottom:12px;">📖 확인 퀴즈</h3>'+qHtml
+    + footerHtml(idx) + '</div>';
+
+  bindFooter(idx);
+
+  function grade(){
+    var allCorrect = true;
+    l.questions.forEach(function(q, qi){
+      var sel = state.quiz[idx][qi];
+      var r = document.getElementById('result'+qi);
+      if(sel === undefined){ allCorrect = false; r.className='result'; return; }
+      if(sel === q.answer){ r.className='result correct'; r.textContent='✓ 정답입니다!'; }
+      else { allCorrect = false; r.className='result wrong'; r.textContent='✗ 다시 생각해 보세요. 본문 설명을 읽어 보면 힌트가 있어요.'; }
+    });
+    applyPass(idx, allCorrect);
+  }
+  main.querySelectorAll('input[type=radio]').forEach(function(radio){
+    radio.addEventListener('change', function(){
+      var qi = parseInt(radio.name.slice(1),10);
+      state.quiz[idx][qi] = parseInt(radio.value,10);
+      grade();
+    });
+  });
+  grade();
+}
+
+function renderFinish(){
+  main.innerHTML =
+    '<div class="card finish">'
+    + '<div class="big">💎</div>'
+    + '<h2>Chapter 03 완주!</h2>'
+    + '<p>제목, 텍스트 꾸미기, 인용문, 코드, 리스트, 수평선, 보기 모드까지 — 책의 기본 마크다운 문법을 모두 직접 써 봤습니다.</p>'
+    + '<p>이제 옵시디언을 열어 오늘 만든 수업 일지 노트를 실제 <code>.md</code> 노트로 옮겨 보세요. 프리뷰 모드에서 클릭하면 마크다운 문자가 보이고, 벗어나면 서식이 적용되는 것도 직접 확인해 보세요.</p>'
+    + '<p style="margin-top:16px"><button class="btn primary" onclick="location.reload()">처음부터 다시 하기</button></p>'
+    + '<p class="note">※ 이 페이지는 저장 기능이 없습니다. 새로고침하면 작성 내용이 사라지니, 남기고 싶은 답안은 옵시디언 노트로 복사해 두세요.</p>'
+    + '</div>';
+}
+
+renderNav();
+renderLesson();
+</script>
+</body>
+</html>

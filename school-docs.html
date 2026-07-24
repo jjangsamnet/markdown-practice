@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>학교 문서로 배우는 마크다운 실습</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#ffffff; --ink:#1f2430; --sub:#5b6472;
+    --line:#e5e8ef; --accent:#4f5dd6; --accent-soft:#eef0fc;
+    --ok:#1a9e6c; --ok-soft:#e6f6ef; --warn:#c2410c;
+    --code-bg:#f1f3f8; --radius:14px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.65;
+  }
+  header{
+    background:var(--card); border-bottom:1px solid var(--line);
+    padding:14px 24px; display:flex; align-items:center; gap:16px;
+    position:sticky; top:0; z-index:20;
+  }
+  header h1{font-size:1.05rem; font-weight:700;}
+  header .sub{font-size:.8rem; color:var(--sub);}
+  .progress-wrap{margin-left:auto; display:flex; align-items:center; gap:10px; font-size:.85rem; color:var(--sub);}
+  .bar{width:160px; height:8px; background:var(--line); border-radius:99px; overflow:hidden;}
+  .bar i{display:block; height:100%; width:0%; background:var(--accent); border-radius:99px; transition:width .3s;}
+  .layout{display:flex; max-width:1400px; margin:0 auto; min-height:calc(100vh - 61px);}
+  nav{
+    width:250px; flex-shrink:0; padding:20px 12px; border-right:1px solid var(--line);
+    background:var(--card);
+  }
+  nav .lv{font-size:.72rem; font-weight:700; color:var(--sub); letter-spacing:.08em; margin:16px 8px 6px;}
+  nav button{
+    display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+    padding:9px 10px; border:none; background:none; border-radius:10px;
+    font-size:.88rem; color:var(--ink); cursor:pointer; font-family:inherit;
+  }
+  nav button:hover{background:var(--accent-soft);}
+  nav button.active{background:var(--accent); color:#fff; font-weight:600;}
+  nav button .done{margin-left:auto; color:var(--ok); font-weight:700;}
+  nav button.active .done{color:#d9f5e8;}
+  main{flex:1; padding:24px; min-width:0;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:16px;}
+  .lesson-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .badge{font-size:.7rem; font-weight:700; padding:3px 10px; border-radius:99px; background:var(--accent-soft); color:var(--accent);}
+  .lesson-head h2{font-size:1.25rem;}
+  .intro{margin-top:10px; color:var(--ink); font-size:.95rem;}
+  .intro p{margin:8px 0;}
+  .intro code, .task code{background:var(--code-bg); padding:2px 6px; border-radius:6px; font-size:.85em; font-family:Consolas,Menlo,monospace;}
+  .intro pre{background:var(--code-bg); border-radius:10px; padding:12px 14px; margin:10px 0; overflow-x:auto; font-size:.85rem; font-family:Consolas,Menlo,monospace; line-height:1.55;}
+  .task{background:var(--accent-soft); border-radius:10px; padding:14px 16px; margin-top:14px; font-size:.93rem;}
+  .task strong{color:var(--accent);}
+  .work{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:900px){ .work{grid-template-columns:1fr;} .layout{flex-direction:column;} nav{width:100%; display:flex; flex-wrap:wrap; border-right:none; border-bottom:1px solid var(--line);} nav .lv{width:100%;} nav button{width:auto;} }
+  .pane{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column;}
+  .pane-title{font-size:.78rem; font-weight:700; color:var(--sub); padding:10px 14px; border-bottom:1px solid var(--line); background:#fafbfe; display:flex; align-items:center;}
+  .pane-title .hintbtn{margin-left:auto; font-size:.75rem; border:1px solid var(--line); background:#fff; border-radius:8px; padding:3px 10px; cursor:pointer; color:var(--sub); font-family:inherit;}
+  textarea{
+    width:100%; flex:1; min-height:300px; border:none; resize:vertical; padding:14px;
+    font-family:Consolas,Menlo,'Malgun Gothic',monospace; font-size:.9rem; line-height:1.7;
+    outline:none; color:var(--ink); background:#fff;
+  }
+  .preview{padding:14px 16px; min-height:300px; font-size:.92rem; overflow-x:auto;}
+  .preview h1{font-size:1.5rem; margin:.5em 0 .35em; border-bottom:2px solid var(--line); padding-bottom:.2em;}
+  .preview h2{font-size:1.25rem; margin:.6em 0 .3em;}
+  .preview h3{font-size:1.05rem; margin:.6em 0 .3em;}
+  .preview p{margin:.45em 0;}
+  .preview ul,.preview ol{margin:.45em 0 .45em 1.4em;}
+  .preview li{margin:.15em 0;}
+  .preview li.task-item{list-style:none; margin-left:-1.2em;}
+  .preview blockquote{border-left:4px solid var(--accent); background:var(--accent-soft); padding:8px 14px; border-radius:0 8px 8px 0; margin:.6em 0; color:#3b4664;}
+  .preview hr{border:none; border-top:2px solid var(--line); margin:1em 0;}
+  .preview table{border-collapse:collapse; margin:.6em 0; width:auto;}
+  .preview th,.preview td{border:1px solid #cfd6e4; padding:6px 12px; font-size:.88rem;}
+  .preview th{background:var(--accent-soft);}
+  .preview code{background:var(--code-bg); padding:2px 6px; border-radius:6px; font-size:.85em; font-family:Consolas,Menlo,monospace;}
+  .preview pre{background:var(--code-bg); border-radius:10px; padding:12px 14px; margin:.6em 0; overflow-x:auto;}
+  .preview pre code{background:none; padding:0;}
+  .preview a{color:var(--accent);}
+  .preview del{color:var(--sub);}
+  .preview details{border:1px solid var(--line); border-radius:10px; padding:8px 14px; margin:.6em 0;}
+  .preview summary{cursor:pointer; font-weight:600; color:var(--accent);}
+  .checks{margin-top:16px;}
+  .checks h3{font-size:.9rem; margin-bottom:8px;}
+  .check{display:flex; gap:10px; align-items:flex-start; padding:7px 12px; border-radius:10px; font-size:.9rem; color:var(--sub); margin-bottom:4px; background:#fafbfe; border:1px solid var(--line);}
+  .check.pass{background:var(--ok-soft); color:var(--ok); border-color:#bfe8d6; font-weight:600;}
+  .check .mark{font-weight:700; width:1.2em; flex-shrink:0;}
+  .hint{display:none; margin-top:12px; background:#fff8ed; border:1px solid #f3dfc0; border-radius:10px; padding:12px 16px; font-size:.88rem; color:#7c5a1e;}
+  .hint.show{display:block;}
+  .hint pre{background:#fff; border-radius:8px; padding:10px 12px; margin-top:8px; font-family:Consolas,Menlo,monospace; font-size:.83rem; overflow-x:auto; color:#444;}
+  .footer-nav{display:flex; gap:12px; margin-top:18px; align-items:center;}
+  .btn{
+    font-family:inherit; font-size:.92rem; font-weight:600; border-radius:10px; cursor:pointer;
+    padding:10px 20px; border:1px solid var(--line); background:var(--card); color:var(--ink);
+  }
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .btn.primary:disabled{background:#b9bfe0; border-color:#b9bfe0; cursor:not-allowed;}
+  .status-msg{font-size:.88rem; color:var(--ok); font-weight:600; display:none;}
+  .status-msg.show{display:inline;}
+  .finish{text-align:center; padding:40px 20px;}
+  .finish .big{font-size:2.4rem;}
+  .finish h2{margin:10px 0;}
+  .finish p{color:var(--sub); max-width:520px; margin:6px auto;}
+  .note{font-size:.78rem; color:var(--sub); margin-top:14px;}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>학교 문서로 배우는 마크다운 실습</h1>
+    <div class="sub">알림장·가정통신문·평가 안내를 마크다운으로 — 조건을 모두 통과하면 다음 단계가 열립니다</div>
+  </div>
+  <div class="progress-wrap">
+    <span id="progressText">0 / 0</span>
+    <div class="bar"><i id="progressBar"></i></div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ===== LOGIC:BEGIN ===== */
+
+/* ---------- 간이 마크다운 렌더러 (수업에서 다루는 문법 지원) ---------- */
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function inlineMD(s){
+  s = s.replace(/`([^`\n]+)`/g, function(_,c){ return '<code>'+c+'</code>'; });
+  s = s.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/~~([^~\n]+)~~/g, '<del>$1</del>');
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+  return s;
+}
+function renderMD(src){
+  var lines = escapeHtml(src.replace(/\r\n/g,'\n')).split('\n');
+  // details/summary/br 허용
+  lines = lines.map(function(l){
+    return l.replace(/&lt;(\/?)(details|summary|br)&gt;/g, '<$1$2>');
+  });
+  var html = [], i = 0;
+
+  function isTableSep(l){ return /^\s*\|?[\s:|-]*-{3,}[\s:|-]*\|?\s*$/.test(l) && l.indexOf('-') !== -1; }
+
+  while(i < lines.length){
+    var line = lines[i];
+
+    // 빈 줄
+    if(/^\s*$/.test(line)){ i++; continue; }
+
+    // 코드블록
+    if(/^```/.test(line)){
+      var code = []; i++;
+      while(i < lines.length && !/^```/.test(lines[i])){ code.push(lines[i]); i++; }
+      i++;
+      html.push('<pre><code>'+code.join('\n')+'</code></pre>');
+      continue;
+    }
+    // 제목
+    var h = line.match(/^(#{1,6})\s+(.*)$/);
+    if(h){ var n=h[1].length; html.push('<h'+n+'>'+inlineMD(h[2])+'</h'+n+'>'); i++; continue; }
+    // 구분선
+    if(/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(line)){ html.push('<hr>'); i++; continue; }
+    // 인용 (이스케이프 이후이므로 &gt; 로 판별)
+    if(/^&gt;\s?/.test(line)){
+      var q=[];
+      while(i < lines.length && /^&gt;\s?/.test(lines[i])){ q.push(lines[i].replace(/^&gt;\s?/,'')); i++; }
+      html.push('<blockquote>'+ q.map(function(x){return '<p>'+inlineMD(x)+'</p>';}).join('') +'</blockquote>');
+      continue;
+    }
+    // 표
+    if(line.indexOf('|') !== -1 && i+1 < lines.length && isTableSep(lines[i+1])){
+      var cellsOf = function(l){ return l.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(function(c){return c.trim();}); };
+      var head = cellsOf(line);
+      i += 2;
+      var rows = [];
+      while(i < lines.length && lines[i].indexOf('|') !== -1 && !/^\s*$/.test(lines[i])){
+        rows.push(cellsOf(lines[i])); i++;
+      }
+      var t = '<table><thead><tr>' + head.map(function(c){return '<th>'+inlineMD(c)+'</th>';}).join('') + '</tr></thead><tbody>';
+      t += rows.map(function(r){ return '<tr>'+ r.map(function(c){return '<td>'+inlineMD(c)+'</td>';}).join('') +'</tr>'; }).join('');
+      t += '</tbody></table>';
+      html.push(t);
+      continue;
+    }
+    // 순서 없는 목록 (체크박스 포함)
+    if(/^\s*[-*]\s+/.test(line)){
+      var items=[];
+      while(i < lines.length && /^\s*[-*]\s+/.test(lines[i])){
+        var body = lines[i].replace(/^\s*[-*]\s+/,'');
+        var cb = body.match(/^\[( |x|X)\]\s*(.*)$/);
+        if(cb){
+          items.push('<li class="task-item"><input type="checkbox" disabled'+(cb[1].toLowerCase()==='x'?' checked':'')+'> '+inlineMD(cb[2])+'</li>');
+        } else {
+          items.push('<li>'+inlineMD(body)+'</li>');
+        }
+        i++;
+      }
+      html.push('<ul>'+items.join('')+'</ul>');
+      continue;
+    }
+    // 순서 있는 목록
+    if(/^\s*\d+\.\s+/.test(line)){
+      var oitems=[];
+      while(i < lines.length && /^\s*\d+\.\s+/.test(lines[i])){
+        oitems.push('<li>'+inlineMD(lines[i].replace(/^\s*\d+\.\s+/,''))+'</li>'); i++;
+      }
+      html.push('<ol>'+oitems.join('')+'</ol>');
+      continue;
+    }
+    // details 블록 통과
+    if(/^<\/?(details|summary)/.test(line.trim())){
+      html.push(inlineMD(line)); i++; continue;
+    }
+    // 문단
+    var p=[line];
+    i++;
+    while(i < lines.length && !/^\s*$/.test(lines[i]) &&
+          !/^(#{1,6}\s|&gt;|\s*[-*]\s|\s*\d+\.\s|```|<\/?(details|summary))/.test(lines[i]) &&
+          !(lines[i].indexOf('|')!==-1 && i+1<lines.length && isTableSep(lines[i+1])) &&
+          !/^\s*(-{3,}|\*{3,})\s*$/.test(lines[i])){
+      p.push(lines[i]); i++;
+    }
+    html.push('<p>'+p.map(inlineMD).join('<br>')+'</p>');
+  }
+  return html.join('\n');
+}
+
+/* ---------- 채점 유틸 ---------- */
+function countMatch(src, re){
+  var m = src.match(re); return m ? m.length : 0;
+}
+
+/* ---------- 레슨 데이터 ---------- */
+var LESSONS = [
+{
+  level:'기초', title:'1. 제목 만들기',
+  intro:'<p>문서의 뼈대는 제목입니다. 마크다운에서는 <code>#</code> 기호로 제목을 만듭니다. <code>#</code> 개수가 많을수록 작은 제목이 됩니다.</p><pre># 가장 큰 제목 (문서 제목)\n## 중간 제목 (장)\n### 작은 제목 (절)</pre><p>⚠️ <code>#</code> 뒤에 <strong>공백 한 칸</strong>이 꼭 있어야 합니다. <code>#제목</code>은 제목이 되지 않습니다.</p>',
+  task:'아래 여름방학 안내 문서에서 <strong>첫 줄은 큰 제목(#)</strong>으로, <strong>"방학 중 꼭 지켜요"와 "개학일 안내"는 중간 제목(##)</strong>으로 만들어 보세요.',
+  starter:'여름방학 안내\n\n방학 중 꼭 지켜요\n\n규칙적인 생활을 하고, 물놀이 안전 수칙을 지킵니다.\n\n개학일 안내\n\n개학일은 8월 25일 화요일입니다.',
+  checks:[
+    {label:'# 으로 만든 큰 제목이 1개 있다', test:function(s){ return /^# .+/m.test(s); }},
+    {label:'## 으로 만든 중간 제목이 2개 있다', test:function(s){ return countMatch(s,/^## .+/gm) >= 2; }},
+    {label:'# 뒤에 공백을 빠뜨린 곳이 없다', test:function(s){ return !/^#{1,6}[^#\s]/m.test(s); }}
+  ],
+  hint:'# 은 문서 전체 제목에 한 번, ## 은 각 장의 제목에 씁니다.',
+  hintCode:'# 여름방학 안내\n\n## 방학 중 꼭 지켜요\n\n규칙적인 생활을 하고, 물놀이 안전 수칙을 지킵니다.\n\n## 개학일 안내\n\n개학일은 8월 25일 화요일입니다.'
+},
+{
+  level:'기초', title:'2. 강조하기',
+  intro:'<p>중요한 내용은 눈에 띄게 만들어야 합니다.</p><pre>**굵게**   → 중요한 정보\n*기울임*   → 살짝 강조\n~~취소선~~ → 취소된 내용</pre><p>여는 기호가 있으면 <strong>닫는 기호</strong>도 있어야 합니다.</p>',
+  task:'<strong>"방학 기간"은 굵게</strong>, <strong>"건강한"은 기울임</strong>으로 강조하고, 취소된 행사인 <strong>"물놀이 체험 행사"에는 취소선</strong>을 그어 보세요.',
+  starter:'# 여름방학 안내\n\n방학 기간: 7월 28일 ~ 8월 24일\n\n물놀이 체험 행사 (폭염으로 취소되었습니다)\n\n개학일에 건강한 모습으로 만나요.',
+  checks:[
+    {label:'**굵게** 처리한 부분이 있다', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s); }},
+    {label:'*기울임* 처리한 부분이 있다', test:function(s){ return /(^|[^*])\*[^*\n]+\*(?!\*)/m.test(s); }},
+    {label:'~~취소선~~ 처리한 부분이 있다', test:function(s){ return /~~[^~\n]+~~/.test(s); }}
+  ],
+  hint:'별표 2개로 감싸면 굵게, 1개로 감싸면 기울임, 물결 2개로 감싸면 취소선입니다.',
+  hintCode:'**방학 기간**: 7월 28일 ~ 8월 24일\n\n~~물놀이 체험 행사~~ (폭염으로 취소되었습니다)\n\n개학일에 *건강한* 모습으로 만나요.'
+},
+{
+  level:'기초', title:'3. 목록 만들기',
+  intro:'<p>문장 속에 늘어놓은 항목은 목록으로 정리하면 훨씬 읽기 쉽습니다.</p><pre>- 순서가 없는 목록 (준비물, 유의사항)\n- 하이픈과 공백으로 시작\n\n1. 순서가 있는 목록 (절차, 단계)\n2. 숫자와 점, 공백으로 시작</pre>',
+  task:'문장 속에 숨어 있는 <strong>준비물 3가지는 순서 없는 목록(-)</strong>으로, <strong>아침 활동 3단계는 순서 있는 목록(1.)</strong>으로 꺼내어 정리해 보세요.',
+  starter:'# 2학기 첫 주 안내\n\n## 준비물\n\n준비물은 실내화, 물통, 색연필입니다.\n\n## 아침 활동 순서\n\n교실에 오면 첫째 독서를 하고, 둘째 일기를 쓰고, 셋째 자리를 정리합니다.',
+  checks:[
+    {label:'순서 없는 목록(- )이 3개 이상 있다', test:function(s){ return countMatch(s,/^- .+/gm) >= 3; }},
+    {label:'순서 있는 목록(1. )이 3개 이상 있다', test:function(s){ return countMatch(s,/^\d+\. .+/gm) >= 3; }}
+  ],
+  hint:'문장을 지우고 항목만 남기세요. 순서 목록은 모두 1. 로 써도 자동으로 번호가 매겨집니다.',
+  hintCode:'## 준비물\n\n- 실내화\n- 물통\n- 색연필\n\n## 아침 활동 순서\n\n1. 독서\n2. 일기 쓰기\n3. 자리 정리'
+},
+{
+  level:'기초', title:'4. 체크박스',
+  intro:'<p>준비물이나 확인 사항은 체크박스로 만들면 하나씩 확인하며 지울 수 있습니다.</p><pre>- [ ] 아직 안 한 일\n- [x] 완료한 일</pre><p>⚠️ 대괄호 안의 공백까지 정확히 지켜야 합니다: <code>- [ ]</code></p>',
+  task:'현장체험학습 전날 확인할 일 3가지를 <strong>체크박스</strong>로 만들어 보세요. 이미 끝낸 <strong>"회신서 제출"은 체크된 상태(x)</strong>로 표시하세요.',
+  starter:'# 현장체험학습 전날 확인\n\n도시락 주문하기, 안전교육 이수하기, 회신서 제출하기(완료함)를 확인해 주세요.',
+  checks:[
+    {label:'빈 체크박스(- [ ])가 2개 이상 있다', test:function(s){ return countMatch(s,/^- \[ \] .+/gm) >= 2; }},
+    {label:'체크된 체크박스(- [x])가 1개 있다', test:function(s){ return countMatch(s,/^- \[[xX]\] .+/gm) >= 1; }}
+  ],
+  hint:'하이픈, 공백, 대괄호 순서를 정확히 지키세요.',
+  hintCode:'- [ ] 도시락 주문하기\n- [ ] 안전교육 이수하기\n- [x] 회신서 제출하기'
+},
+{
+  level:'기초', title:'5. 인용과 구분선',
+  intro:'<p>안내문에서 꼭 전하고 싶은 당부는 인용문으로 강조하고, 내용이 달라지는 곳에는 구분선을 넣습니다.</p><pre>&gt; 당부의 말씀이나 중요한 공지\n\n---</pre>',
+  task:'<strong>"안전이 가장 중요합니다..." 문장을 인용문(&gt;)</strong>으로 바꾸고, 당부의 말과 문의 안내 사이에 <strong>구분선(---)</strong>을 넣어 보세요.',
+  starter:'# 현장체험학습 당부 말씀\n\n안전이 가장 중요합니다. 선생님과 약속한 규칙을 꼭 지켜 주세요.\n\n문의: 5학년 2반 담임 (교무실 031-000-0000)',
+  checks:[
+    {label:'인용문(> )이 있다', test:function(s){ return /^> .+/m.test(s); }},
+    {label:'구분선(---)이 있다', test:function(s){ return /^-{3,}\s*$/m.test(s); }}
+  ],
+  hint:'구분선은 앞뒤에 빈 줄을 두고 하이픈 3개만 씁니다.',
+  hintCode:'> 안전이 가장 중요합니다. 선생님과 약속한 규칙을 꼭 지켜 주세요.\n\n---\n\n문의: 5학년 2반 담임'
+},
+{
+  level:'기초', title:'6. 링크와 코드',
+  intro:'<p>신청 주소는 클릭할 수 있는 링크로, 날짜·시간처럼 그대로 보여야 하는 정보는 코드 표시로 감쌉니다.</p><pre>[신청 링크](https://forms.gle/abc123)\n`2026-09-11`</pre>',
+  task:'<strong>주소를 "설문 신청하기"라는 링크</strong>로 바꾸고, <strong>마감일 날짜를 코드(`)로 감싸</strong> 눈에 띄게 만들어 보세요.',
+  starter:'# 방과후학교 수강 신청\n\n신청은 다음 주소에서 해 주세요: https://forms.gle/abc123\n\n마감일은 9월 11일 금요일입니다.',
+  checks:[
+    {label:'[이름](주소) 형태의 링크가 있다', test:function(s){ return /\[[^\]\n]+\]\([^)\s]+\)/.test(s); }},
+    {label:'`코드`로 감싼 부분이 있다', test:function(s){ return /`[^`\n]+`/.test(s); }}
+  ],
+  hint:'대괄호 안에는 보여줄 이름, 소괄호 안에는 실제 주소를 넣습니다.',
+  hintCode:'신청: [설문 신청하기](https://forms.gle/abc123)\n\n마감일: `9월 11일(금)`'
+},
+{
+  level:'중급', title:'7. 표 만들기',
+  intro:'<p>교사에게 가장 쓸모 있는 문법입니다. 시간표, 평가 기준표, 역할 분담표가 모두 표입니다.</p><pre>| 교시 | 과목 | 준비물 |\n|------|------|--------|\n| 1교시 | 국어 | 교과서 |</pre><p>⚠️ 둘째 줄의 <strong>구분선(|---|)</strong>이 없으면 표로 인식되지 않습니다.</p>',
+  task:'문장으로 쓰인 시간표를 <strong>교시 · 과목 · 준비물 3개 열의 표</strong>로 만들어 보세요. 3교시까지 모두 넣어야 합니다.',
+  starter:'# 월요일 시간표 안내\n\n1교시는 국어이고 교과서가 필요합니다. 2교시는 수학이고 수학익힘책이 필요합니다. 3교시는 체육이고 체육복이 필요합니다.',
+  checks:[
+    {label:'| 로 구분한 머리글 행이 있다', test:function(s){ return /^\|.+\|.+\|/m.test(s); }},
+    {label:'구분선 행(|---|---|)이 있다', test:function(s){ return /^\|?[\s:|-]*-{3,}[\s:|-]*\|?\s*$/m.test(s); }},
+    {label:'자료 행이 3줄 이상 있다', test:function(s){
+      var lines = s.split('\n').filter(function(l){ return /^\|.+\|/.test(l) && !/-{3,}/.test(l); });
+      return lines.length >= 4; /* 머리글 1 + 자료 3 */
+    }}
+  ],
+  hint:'머리글, 구분선, 자료 순서입니다. 칸 너비는 맞추지 않아도 됩니다.',
+  hintCode:'| 교시 | 과목 | 준비물 |\n|------|------|--------|\n| 1교시 | 국어 | 교과서 |\n| 2교시 | 수학 | 수학익힘책 |\n| 3교시 | 체육 | 체육복 |'
+},
+{
+  level:'중급', title:'8. 접기와 펼치기',
+  intro:'<p>자주 묻는 질문(FAQ)처럼 <strong>필요한 사람만 펼쳐 보면 되는 내용</strong>은 접기 문법을 씁니다.</p><pre>&lt;details&gt;\n&lt;summary&gt;질문을 여기에&lt;/summary&gt;\n\n답변을 여기에 (위에 빈 줄 필수!)\n\n&lt;/details&gt;</pre>',
+  task:'아래 질문과 답변을 <strong>접기/펼치기</strong>로 바꿔 보세요. 질문은 summary에, 답변은 안쪽에 넣습니다. 미리보기에서 질문을 클릭해 보세요.',
+  starter:'# 자주 묻는 질문\n\n질문: 우천 시에도 현장체험학습을 가나요?\n답변: 실내 활동으로 변경하여 정상 진행됩니다.',
+  checks:[
+    {label:'<details> 여는 태그와 닫는 태그가 있다', test:function(s){ return /<details>/.test(s) && /<\/details>/.test(s); }},
+    {label:'<summary>질문</summary>이 있다', test:function(s){ return /<summary>.+<\/summary>/.test(s); }}
+  ],
+  hint:'태그 사이에 빈 줄을 넣어야 안쪽 내용이 제대로 보입니다.',
+  hintCode:'<details>\n<summary>우천 시에도 현장체험학습을 가나요?</summary>\n\n실내 활동으로 변경하여 정상 진행됩니다.\n\n</details>'
+},
+{
+  level:'종합', title:'9. 알림장 변환하기',
+  intro:'<p>이제 배운 문법을 모아 실전 문서를 만듭니다. 아래는 한 덩어리로 쓰인 <strong>알림장 평문</strong>입니다.</p><p>변환의 핵심은 타이핑이 아니라 <strong>구조를 읽어내는 것</strong>입니다. 5가지 정보가 섞여 있으니 "해야 할 일"과 "알아 둘 일"로 나눠 보세요.</p>',
+  task:'알림장을 마크다운으로 재구성하세요. 조건: <strong>제목 1개 이상</strong>, <strong>해야 할 일은 체크박스 3개 이상</strong>, <strong>날짜가 들어간 굵은 글씨</strong>를 포함할 것. 문장을 다듬거나 순서를 바꿔도 좋습니다.',
+  starter:'10월 12일 월요일 알림장. 내일은 사회 수행평가가 있으니 교과서 4단원을 복습해 오세요. 준비물은 색연필과 가위입니다. 목요일에 학급 사진을 찍으니 생활복을 입고 오세요. 우유 급식 신청서는 수요일까지 내야 합니다. 다음 주 월요일은 개교기념일로 쉽니다.',
+  checks:[
+    {label:'제목(#)이 있다', test:function(s){ return /^#{1,3} .+/m.test(s); }},
+    {label:'체크박스가 3개 이상 있다', test:function(s){ return countMatch(s,/^- \[[ xX]\] .+/gm) >= 3; }},
+    {label:'날짜가 들어간 굵은 글씨가 있다', test:function(s){ return /\*\*[^*\n]*\d[^*\n]*\*\*/.test(s); }}
+  ],
+  hint:'예를 들어 이런 구조로 나눌 수 있습니다.',
+  hintCode:'# 10월 12일(월) 알림장\n\n## 해야 할 일\n\n- [ ] 사회 교과서 4단원 복습 (**10월 13일 수행평가**)\n- [ ] 색연필, 가위 준비\n- [ ] 우유 급식 신청서 제출 (**10월 14일 수요일까지**)\n\n## 알아 둘 일\n\n- 목요일 학급 사진 촬영 — 생활복 착용\n- **10월 19일(월)**은 개교기념일 휴업일'
+},
+{
+  level:'종합', title:'10. 가정통신문 완성하기',
+  intro:'<p>마지막 실습입니다. 서식 없는 <strong>현장체험학습 안내문 평문</strong>을 완성된 마크다운 문서로 바꿉니다.</p><p>변환하면서 스스로에게 물어보세요 — 평문에서는 문장 속에 묻혀 있던 <strong>날짜, 마감일, 준비물</strong>이 내 문서에서는 한눈에 들어오는가?</p>',
+  task:'배운 문법을 모두 동원해 안내문을 완성하세요. 조건: <strong>제목 2수준</strong>, <strong>목록</strong>, <strong>준비물 체크박스</strong>, <strong>굵은 글씨</strong>, <strong>당부 인용문</strong>, <strong>구분선</strong>을 모두 포함할 것.',
+  starter:'현장체험학습 안내\n\n안녕하십니까. 우리 반은 다음과 같이 현장체험학습을 다녀오고자 하오니 자녀의 준비에 협조 부탁드립니다.\n\n일시는 2026년 9월 18일 금요일 오전 9시부터 오후 3시까지이고, 장소는 국립과천과학관입니다. 오전에는 기초과학관을 관람하고 점심 식사 후 오후에는 천체투영관을 관람합니다.\n\n준비물은 도시락, 물, 개인 간식, 편한 신발, 모자입니다. 우천 시에도 실내 활동으로 정상 진행됩니다.\n\n멀미가 심한 학생은 담임에게 미리 알려 주시고, 회신서는 9월 11일 금요일까지 담임에게 제출해 주시기 바랍니다.\n\n2026년 9월 4일 푸른초등학교 5학년 2반 담임',
+  checks:[
+    {label:'큰 제목(#)과 중간 제목(##)이 모두 있다', test:function(s){ return /^# .+/m.test(s) && /^## .+/m.test(s); }},
+    {label:'목록(- 또는 1.)이 있다', test:function(s){ return /^- (?!\[)/m.test(s) || /^\d+\. /m.test(s); }},
+    {label:'체크박스가 3개 이상 있다', test:function(s){ return countMatch(s,/^- \[[ xX]\] .+/gm) >= 3; }},
+    {label:'굵은 글씨가 2곳 이상 있다', test:function(s){ return countMatch(s,/\*\*[^*\n]+\*\*/g) >= 2; }},
+    {label:'인용문(>)이 있다', test:function(s){ return /^> .+/m.test(s); }},
+    {label:'구분선(---)이 있다', test:function(s){ return /^-{3,}\s*$/m.test(s); }}
+  ],
+  hint:'일시·장소는 목록으로, 준비물은 체크박스로, 당부는 인용문으로, 발신 정보 앞에는 구분선을 넣는 구조를 추천합니다.',
+  hintCode:'# 현장체험학습 안내\n\n> 멀미가 심한 학생은 담임에게 미리 알려 주세요.\n\n## 개요\n\n- **일시**: 2026년 9월 18일(금) 09:00 ~ 15:00\n- **장소**: 국립과천과학관\n\n## 준비물\n\n- [ ] 도시락과 물\n- [ ] 개인 간식\n- [ ] 편한 신발, 모자\n\n**회신서 제출 마감: 9월 11일(금)**\n\n---\n\n2026년 9월 4일 · 푸른초등학교 5학년 2반 담임'
+}
+];
+/* ===== LOGIC:END ===== */
+
+/* ---------- 앱 상태 및 UI ---------- */
+var state = { current:0, done:LESSONS.map(function(){return false;}), answers:LESSONS.map(function(l){return l.starter;}) };
+
+var nav = document.getElementById('nav');
+var main = document.getElementById('main');
+
+function renderNav(){
+  var html = '', lastLv = '';
+  LESSONS.forEach(function(l, idx){
+    if(l.level !== lastLv){ html += '<div class="lv">'+l.level+'</div>'; lastLv = l.level; }
+    html += '<button data-i="'+idx+'" class="'+(idx===state.current?'active':'')+'">'
+          + l.title + (state.done[idx] ? '<span class="done">✓</span>' : '') + '</button>';
+  });
+  nav.innerHTML = html;
+  nav.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){ go(parseInt(b.dataset.i,10)); });
+  });
+  var doneCount = state.done.filter(Boolean).length;
+  document.getElementById('progressText').textContent = doneCount + ' / ' + LESSONS.length;
+  document.getElementById('progressBar').style.width = (doneCount / LESSONS.length * 100) + '%';
+}
+
+function go(i){
+  state.current = i;
+  renderLesson();
+  renderNav();
+  window.scrollTo(0,0);
+}
+
+function renderLesson(){
+  var idx = state.current;
+  if(idx >= LESSONS.length){ renderFinish(); return; }
+  var l = LESSONS[idx];
+  main.innerHTML =
+    '<div class="card">'
+    + '<div class="lesson-head"><span class="badge">'+l.level+'</span><h2>'+l.title+'</h2></div>'
+    + '<div class="intro">'+l.intro+'</div>'
+    + '<div class="task">📝 <strong>실습 과제</strong><br>'+l.task+'</div>'
+    + '</div>'
+    + '<div class="work">'
+    + '<div class="pane"><div class="pane-title">✏️ 여기에 마크다운을 작성하세요 <button class="hintbtn" id="hintBtn">힌트 보기</button></div><textarea id="editor" spellcheck="false"></textarea></div>'
+    + '<div class="pane"><div class="pane-title">👀 실시간 미리보기</div><div class="preview" id="preview"></div></div>'
+    + '</div>'
+    + '<div class="hint" id="hintBox">💡 ' + l.hint + (l.hintCode ? '<pre>'+escapeHtml(l.hintCode)+'</pre>' : '') + '</div>'
+    + '<div class="checks card"><h3>통과 조건</h3><div id="checkList"></div>'
+    + '<div class="footer-nav">'
+    + (idx > 0 ? '<button class="btn" id="prevBtn">← 이전</button>' : '')
+    + '<button class="btn primary" id="nextBtn" disabled>다음 레슨 →</button>'
+    + '<span class="status-msg" id="statusMsg">🎉 모든 조건 통과! 다음으로 넘어가세요.</span>'
+    + '</div></div>';
+
+  var editor = document.getElementById('editor');
+  editor.value = state.answers[idx];
+
+  document.getElementById('hintBtn').addEventListener('click', function(){
+    document.getElementById('hintBox').classList.toggle('show');
+  });
+  if(idx > 0){
+    document.getElementById('prevBtn').addEventListener('click', function(){ go(idx-1); });
+  }
+  document.getElementById('nextBtn').addEventListener('click', function(){
+    if(idx+1 < LESSONS.length){ go(idx+1); } else { state.current = LESSONS.length; renderFinish(); renderNav(); }
+  });
+  editor.addEventListener('input', function(){
+    state.answers[idx] = editor.value;
+    update(idx);
+  });
+  update(idx);
+}
+
+function update(idx){
+  var l = LESSONS[idx];
+  var src = state.answers[idx];
+  document.getElementById('preview').innerHTML = renderMD(src);
+  var allPass = true;
+  var html = l.checks.map(function(c){
+    var pass = false;
+    try{ pass = !!c.test(src); }catch(e){ pass = false; }
+    if(!pass) allPass = false;
+    return '<div class="check '+(pass?'pass':'')+'"><span class="mark">'+(pass?'✓':'○')+'</span><span>'+c.label+'</span></div>';
+  }).join('');
+  document.getElementById('checkList').innerHTML = html;
+  var next = document.getElementById('nextBtn');
+  var msg = document.getElementById('statusMsg');
+  next.disabled = !allPass;
+  msg.classList.toggle('show', allPass);
+  if(allPass && !state.done[idx]){ state.done[idx] = true; renderNav(); }
+  if(!allPass && state.done[idx]){ /* 유지: 한 번 통과하면 완료 표시 유지 */ }
+}
+
+function renderFinish(){
+  main.innerHTML =
+    '<div class="card finish">'
+    + '<div class="big">🎓</div>'
+    + '<h2>수고하셨습니다!</h2>'
+    + '<p>알림장부터 가정통신문까지, 학교 문서를 마크다운으로 구조화하는 10단계를 모두 마쳤습니다.</p>'
+    + '<p>이제 같은 마크다운으로 AI에게 구조화된 요청을 보내고, Notion·Obsidian에 기록하고, Gamma로 슬라이드를 만들 수 있습니다.</p>'
+    + '<p style="margin-top:16px"><button class="btn primary" onclick="location.reload()">처음부터 다시 하기</button></p>'
+    + '<p class="note">※ 이 페이지는 저장 기능이 없습니다. 새로고침하면 작성 내용이 사라지니, 남기고 싶은 답안은 복사해 두세요.</p>'
+    + '</div>';
+}
+
+renderNav();
+renderLesson();
+</script>
+</body>
+</html>

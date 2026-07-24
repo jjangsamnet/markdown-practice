@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마크다운 미션 실습 — 기초 · 중급 · 고급</title>
+<style>
+  :root{
+    --bg:#f7f5fc; --card:#ffffff; --ink:#2a2438; --sub:#6d6580;
+    --line:#e8e3f4; --accent:#8b5cf6; --accent-deep:#6d3ef0; --accent-soft:#f1ecfd;
+    --ok:#1a9e6c; --ok-soft:#e6f6ef;
+    --code-bg:#f4f1fb; --radius:14px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,sans-serif; background:var(--bg); color:var(--ink); line-height:1.65;}
+  header{background:var(--card); border-bottom:1px solid var(--line); padding:14px 24px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:20;}
+  .chapter-chip{font-size:.7rem; font-weight:700; color:#fff; background:var(--accent); border-radius:99px; padding:4px 12px; flex-shrink:0;}
+  header h1{font-size:1.05rem; font-weight:800;}
+  header .sub{font-size:.78rem; color:var(--sub);}
+  .progress-wrap{margin-left:auto; display:flex; align-items:center; gap:10px; font-size:.85rem; color:var(--sub);}
+  .bar{width:150px; height:8px; background:var(--line); border-radius:99px; overflow:hidden;}
+  .bar i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent-deep)); border-radius:99px; transition:width .3s;}
+  .layout{display:flex; max-width:1400px; margin:0 auto; min-height:calc(100vh - 61px);}
+  nav{width:270px; flex-shrink:0; padding:20px 12px; border-right:1px solid var(--line); background:var(--card);}
+  nav .lv{font-size:.7rem; font-weight:800; color:var(--accent-deep); letter-spacing:.05em; margin:16px 8px 6px;}
+  nav button{display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:9px 10px; border:none; background:none; border-radius:10px; font-size:.85rem; color:var(--ink); cursor:pointer; font-family:inherit;}
+  nav button:hover{background:var(--accent-soft);}
+  nav button.active{background:var(--accent); color:#fff; font-weight:600;}
+  nav button .done{margin-left:auto; color:var(--ok); font-weight:700;}
+  nav button.active .done{color:#e5d9fd;}
+  main{flex:1; padding:24px; min-width:0;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:16px;}
+  .lesson-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .badge{font-size:.7rem; font-weight:700; padding:3px 10px; border-radius:99px; background:var(--accent-soft); color:var(--accent-deep);}
+  .booknum{font-size:.7rem; font-weight:700; padding:3px 8px; border-radius:6px; background:var(--accent); color:#fff;}
+  .lesson-head h2{font-size:1.25rem;}
+  .intro{margin-top:10px; font-size:.95rem;}
+  .intro p{margin:8px 0;}
+  .intro code, .task code{background:var(--code-bg); padding:2px 6px; border-radius:6px; font-size:.85em; font-family:Consolas,Menlo,monospace;}
+  .intro pre{background:var(--code-bg); border-radius:10px; padding:12px 14px; margin:10px 0; overflow-x:auto; font-size:.85rem; font-family:Consolas,Menlo,monospace; line-height:1.55;}
+  .intro table{border-collapse:collapse; margin:10px 0; font-size:.88rem;}
+  .intro th,.intro td{border:1px solid #d5cbee; padding:6px 14px;}
+  .intro th{background:var(--accent-soft);}
+  .tip{background:#faf7ff; border:1.5px solid #ddc9ff; border-radius:12px; padding:12px 16px; margin:12px 0; font-size:.88rem;}
+  .tip .tiptitle{display:inline-block; font-weight:800; color:#fff; background:var(--accent-deep); border-radius:8px; padding:2px 10px; font-size:.75rem; margin-bottom:6px;}
+  .task{background:var(--accent-soft); border-radius:10px; padding:14px 16px; margin-top:14px; font-size:.93rem;}
+  .task strong{color:var(--accent-deep);}
+  .work{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:900px){ .work{grid-template-columns:1fr;} .layout{flex-direction:column;} nav{width:100%; display:flex; flex-wrap:wrap; border-right:none; border-bottom:1px solid var(--line);} nav .lv{width:100%;} nav button{width:auto;} }
+  .pane{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column;}
+  .pane-title{font-size:.78rem; font-weight:700; color:var(--sub); padding:10px 14px; border-bottom:1px solid var(--line); background:#fbf9ff; display:flex; align-items:center;}
+  .pane-title .hintbtn{margin-left:auto; font-size:.75rem; border:1px solid var(--line); background:#fff; border-radius:8px; padding:3px 10px; cursor:pointer; color:var(--sub); font-family:inherit;}
+  textarea{width:100%; flex:1; min-height:320px; border:none; resize:vertical; padding:14px; font-family:Consolas,Menlo,'Malgun Gothic',monospace; font-size:.9rem; line-height:1.7; outline:none; color:var(--ink); background:#fff;}
+  .preview{padding:14px 16px; min-height:320px; font-size:.92rem; overflow-x:auto;}
+  .preview h1{font-size:1.5rem; margin:.5em 0 .35em;}
+  .preview h2{font-size:1.25rem; margin:.6em 0 .3em;}
+  .preview h3{font-size:1.05rem; margin:.6em 0 .3em;}
+  .preview h4{font-size:.95rem; margin:.6em 0 .3em;}
+  .preview p{margin:.45em 0;}
+  .preview ul,.preview ol{margin:.45em 0 .45em 1.5em;}
+  .preview li{margin:.15em 0;}
+  .preview li.task-item{list-style:none; margin-left:-1.2em;}
+  .preview blockquote{border-left:4px solid var(--accent); background:var(--accent-soft); padding:8px 14px; border-radius:0 8px 8px 0; margin:.6em 0; color:#4a3f6b;}
+  .preview blockquote p{margin:.15em 0;}
+  .preview hr{border:none; border-top:2px solid #d8cef0; margin:1em 0;}
+  .preview mark{background:#f3e88a; border-radius:3px; padding:0 2px;}
+  .preview code{background:var(--code-bg); padding:2px 6px; border-radius:6px; font-size:.85em; font-family:Consolas,Menlo,monospace;}
+  .preview pre{background:var(--code-bg); border-radius:10px; padding:12px 14px; margin:.6em 0; overflow-x:auto; position:relative;}
+  .preview pre code{background:none; padding:0;}
+  .preview pre .lang{position:absolute; top:6px; right:10px; font-size:.7rem; color:var(--accent-deep); font-weight:700;}
+  .preview a{color:var(--accent-deep);}
+  .preview del{color:var(--sub);}
+  .checks{margin-top:16px;}
+  .checks h3{font-size:.9rem; margin-bottom:8px;}
+  .check{display:flex; gap:10px; align-items:flex-start; padding:7px 12px; border-radius:10px; font-size:.9rem; color:var(--sub); margin-bottom:4px; background:#fbf9ff; border:1px solid var(--line);}
+  .check.pass{background:var(--ok-soft); color:var(--ok); border-color:#bfe8d6; font-weight:600;}
+  .check .mark{font-weight:700; width:1.2em; flex-shrink:0;}
+  .hint{display:none; margin-top:12px; background:#fff8ed; border:1px solid #f3dfc0; border-radius:10px; padding:12px 16px; font-size:.88rem; color:#7c5a1e;}
+  .hint.show{display:block;}
+  .hint pre{background:#fff; border-radius:8px; padding:10px 12px; margin-top:8px; font-family:Consolas,Menlo,monospace; font-size:.83rem; overflow-x:auto; color:#444; white-space:pre;}
+  .footer-nav{display:flex; gap:12px; margin-top:18px; align-items:center; flex-wrap:wrap;}
+  .btn{font-family:inherit; font-size:.92rem; font-weight:600; border-radius:10px; cursor:pointer; padding:10px 20px; border:1px solid var(--line); background:var(--card); color:var(--ink);}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .btn.primary:disabled{background:#cbb8f5; border-color:#cbb8f5; cursor:not-allowed;}
+  .status-msg{font-size:.88rem; color:var(--ok); font-weight:600; display:none;}
+  .status-msg.show{display:inline;}
+  .finish{text-align:center; padding:40px 20px;}
+  .finish .big{font-size:2.4rem;}
+  .finish h2{margin:10px 0;}
+  .finish p{color:var(--sub); max-width:560px; margin:6px auto;}
+  .note{font-size:.78rem; color:var(--sub); margin-top:14px;}
+</style>
+</head>
+<body>
+<header>
+  <span class="chapter-chip">MISSION</span>
+  <div>
+    <h1>마크다운 미션 실습 — 기초 · 중급 · 고급</h1>
+    <div class="sub">같은 문법을 미션마다 다시 만나며 완전히 익힙니다 (🆕 새 기능 · 🔁 반복 훈련)</div>
+  </div>
+  <div class="progress-wrap">
+    <span id="progressText">0 / 0</span>
+    <div class="bar"><i id="progressBar"></i></div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ===== LOGIC:BEGIN ===== */
+
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function inlineMD(s){
+  s = s.replace(/`([^`\n]+)`/g, function(_,c){ return '<code>'+c+'</code>'; });
+  s = s.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/==([^=\n]+)==/g, '<mark>$1</mark>');
+  s = s.replace(/~~([^~\n]+)~~/g, '<del>$1</del>');
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+  return s;
+}
+var LIST_RE = /^(\s*)([-*]|\d+\.)\s+(.*)$/;
+
+function renderMD(src){
+  var lines = escapeHtml(src.replace(/\r\n/g,'\n').replace(/\t/g,'  ')).split('\n');
+  var html = [], i = 0;
+  var HR_RE = /^\s*-{3,}\s*$/;
+  function isTableSep(l){ return /^\s*\|?[\s:|-]*-{3,}[\s:|-]*\|?\s*$/.test(l) && l.indexOf('|') !== -1; }
+  function listItemHtml(body){
+    var cb = body.match(/^\[( |x|X)\]\s*(.*)$/);
+    if(cb){ return {html:'<input type="checkbox" disabled'+(cb[1].toLowerCase()==='x'?' checked':'')+'> '+inlineMD(cb[2]), task:true}; }
+    return {html:inlineMD(body), task:false};
+  }
+  while(i < lines.length){
+    var line = lines[i];
+    if(/^\s*$/.test(line)){ i++; continue; }
+    var fence = line.match(/^```\s*(\S+)?\s*$/);
+    if(fence){
+      var lang = fence[1] || ''; var code = []; i++;
+      while(i < lines.length && !/^```/.test(lines[i])){ code.push(lines[i]); i++; }
+      i++;
+      html.push('<pre>'+(lang?'<span class="lang">'+lang+'</span>':'')+'<code>'+code.join('\n')+'</code></pre>');
+      continue;
+    }
+    var h = line.match(/^(#{1,6})\s+(.*)$/);
+    if(h){ var n=h[1].length; html.push('<h'+n+'>'+inlineMD(h[2])+'</h'+n+'>'); i++; continue; }
+    if(HR_RE.test(line)){ html.push('<hr>'); i++; continue; }
+    if(/^&gt;\s?/.test(line)){
+      var q=[];
+      while(i < lines.length && /^&gt;\s?/.test(lines[i])){ q.push(lines[i].replace(/^&gt;\s?/,'')); i++; }
+      html.push('<blockquote>'+ q.map(function(x){return '<p>'+inlineMD(x)+'</p>';}).join('') +'</blockquote>');
+      continue;
+    }
+    if(line.indexOf('|') !== -1 && i+1 < lines.length && isTableSep(lines[i+1])){
+      var cellsOf = function(l){ return l.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(function(c){return c.trim();}); };
+      var head = cellsOf(line); i += 2; var rows = [];
+      while(i < lines.length && lines[i].indexOf('|') !== -1 && !/^\s*$/.test(lines[i])){ rows.push(cellsOf(lines[i])); i++; }
+      html.push('<table><thead><tr>'+head.map(function(c){return '<th>'+inlineMD(c)+'</th>';}).join('')+'</tr></thead><tbody>'
+        + rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+inlineMD(c)+'</td>';}).join('')+'</tr>';}).join('') + '</tbody></table>');
+      continue;
+    }
+    if(LIST_RE.test(line)){
+      var items=[];
+      while(i < lines.length && LIST_RE.test(lines[i])){
+        var m = lines[i].match(LIST_RE);
+        items.push({ level: m[1].length >= 2 ? 1 : 0, ordered: /^\d+\.$/.test(m[2]), body: m[3] });
+        i++;
+      }
+      var out='', openSub=null, topType = items[0].ordered ? 'ol' : 'ul', liOpen=false;
+      out += '<'+topType+'>';
+      items.forEach(function(it){
+        var li = listItemHtml(it.body);
+        if(it.level === 0){
+          if(openSub){ out += '</'+openSub+'>'; openSub=null; }
+          if(liOpen){ out += '</li>'; }
+          out += '<li'+(li.task?' class="task-item"':'')+'>'+li.html; liOpen = true;
+        } else {
+          if(!openSub){ openSub = it.ordered ? 'ol' : 'ul'; out += '<'+openSub+'>'; }
+          out += '<li'+(li.task?' class="task-item"':'')+'>'+li.html+'</li>';
+        }
+      });
+      if(openSub){ out += '</'+openSub+'>'; }
+      if(liOpen){ out += '</li>'; }
+      out += '</'+topType+'>';
+      html.push(out);
+      continue;
+    }
+    var p=[line]; i++;
+    while(i < lines.length && !/^\s*$/.test(lines[i]) &&
+          !/^(#{1,6}\s|&gt;|```)/.test(lines[i]) && !LIST_RE.test(lines[i]) && !HR_RE.test(lines[i]) &&
+          !(lines[i].indexOf('|')!==-1 && i+1<lines.length && isTableSep(lines[i+1]))){
+      p.push(lines[i]); i++;
+    }
+    if(i < lines.length && HR_RE.test(lines[i])){
+      html.push('<h2>'+p.map(inlineMD).join('<br>')+'</h2>'); i++; continue;
+    }
+    html.push('<p>'+p.map(inlineMD).join('<br>')+'</p>');
+  }
+  return html.join('\n');
+}
+
+function countMatch(src, re){ var m = src.match(re); return m ? m.length : 0; }
+function hasRealHr(src){
+  var ls = src.replace(/\r\n/g,'\n').split('\n');
+  for(var i=0;i<ls.length;i++){
+    if(/^\s*-{3,}\s*$/.test(ls[i]) && (i===0 || /^\s*$/.test(ls[i-1]))) return true;
+  }
+  return false;
+}
+function noSetextAccident(src){
+  var ls = src.replace(/\r\n/g,'\n').split('\n');
+  for(var i=1;i<ls.length;i++){
+    if(/^\s*-{3,}\s*$/.test(ls[i]) && !/^\s*$/.test(ls[i-1])) return false;
+  }
+  return true;
+}
+function allTasksValid(s){
+  var ls = s.split('\n');
+  for(var k=0;k<ls.length;k++){
+    var t = ls[k];
+    if(/^\s*-\s*\[/.test(t) && !/^\s*- \[( |x|X)\] .+/.test(t)) return false;
+  }
+  return true;
+}
+
+/* ---------- 미션 데이터 ---------- */
+var LESSONS = [
+{
+  type:'info', chip:'START', level:'브리핑', time:'5분', title:'미션 브리핑',
+  intro:'<p>앞으로 <strong>3개의 미션</strong>을 수행합니다. 한 번 배운 문법은 다음 미션에서 <strong>반드시 다시 등장</strong>합니다. 반복해서 손에 익히는 것이 이 실습의 목표입니다.</p>'
+  + '<table><tr><th>미션</th><th>이름</th><th>내용</th></tr>'
+  + '<tr><td><strong>미션 1</strong></td><td>기초 — 문법 장착</td><td>제목·강조·리스트·인용·수평선을 하나씩 익히고 알림장 완성</td></tr>'
+  + '<tr><td><strong>미션 2</strong></td><td>중급 — 조합 훈련</td><td>코드·하위 리스트를 새로 배우고, 기초 문법과 조합해 노트 2종 작성</td></tr>'
+  + '<tr><td><strong>미션 3</strong></td><td>고급 — 실전 투입</td><td>고장난 문서 수리, 긴 평문 변환, 나만의 노트 자유 설계</td></tr></table>'
+  + '<div class="tip"><span class="tiptitle">진행 방법</span><br>각 단계의 <strong>통과 조건</strong>을 모두 만족해야 다음 단계 버튼이 열립니다. 조건 앞의 <strong>🆕는 새로 배우는 기능</strong>, <strong>🔁는 앞에서 배운 것을 다시 쓰는 반복 훈련</strong>입니다. 막히면 힌트 버튼을 누르세요. 단, 힌트를 보기 전에 1분은 스스로 시도해 보세요.</div>',
+  task:'준비되었으면 <strong>[미션 1 시작 →]</strong> 버튼을 누르세요.'
+},
+{
+  chip:'M1-1', level:'미션 1 · 기초 — 문법 장착', time:'5분', title:'알림장 뼈대 세우기',
+  intro:'<p>모든 문서는 제목부터 시작합니다. <code>#</code>을 쓰고 <strong>한 칸 띄운 뒤</strong> 제목을 씁니다. <code>#</code> 개수가 늘수록 작은 제목입니다. 중요한 글자는 <code>**굵게**</code> 감쌉니다.</p><pre># 큰 제목\n## 중간 제목\n**굵게 할 글자**</pre>',
+  task:'첫 줄은 <strong>제목 1(#)</strong>, "내일 준비물"은 <strong>제목 2(##)</strong>로 만들고, <strong>"다음 주 월요일 현장체험학습"을 굵게</strong> 강조하세요.',
+  starter:'9월 1일 알림장\n\n내일 준비물\n\n오늘의 중요한 소식은 다음 주 월요일 현장체험학습입니다.',
+  checks:[
+    {label:'🆕 제목 1(#)이 있다', test:function(s){ return /^# .+/m.test(s); }},
+    {label:'🆕 제목 2(##)가 있다', test:function(s){ return /^## .+/m.test(s); }},
+    {label:'🆕 **굵게** 강조가 있다', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s); }},
+    {label:'🆕 # 뒤 띄어쓰기를 빠뜨린 곳이 없다', test:function(s){ return !/^#{1,6}[^#\s]/m.test(s); }}
+  ],
+  hint:'# 과 글자 사이에 공백 한 칸, 별표는 여닫이 두 쌍입니다.',
+  hintCode:'# 9월 1일 알림장\n\n## 내일 준비물\n\n오늘의 중요한 소식은 **다음 주 월요일 현장체험학습**입니다.'
+},
+{
+  chip:'M1-2', level:'미션 1 · 기초 — 문법 장착', time:'7분', title:'리스트 3종 세트',
+  intro:'<p>리스트는 세 종류입니다. 나열은 <code>-</code>, 순서는 <code>1.</code>, 할 일은 <code>- [ ]</code>. 태스크 리스트는 <strong>대시와 대괄호 사이, 대괄호 안의 공란</strong>을 꼭 지켜야 합니다.</p><pre>- 나열할 것\n1. 순서 있는 것\n- [ ] 할 일\n- [x] 끝낸 일</pre>',
+  task:'문장 속 <strong>준비물 3가지는 - 리스트</strong>로, <strong>아침 활동 3단계는 숫자 리스트</strong>로, <strong>오늘 할 일 2가지는 태스크 리스트</strong>로 정리하세요. 제목 구조는 그대로 유지합니다.',
+  starter:'# 9월 1일 알림장\n\n## 내일 준비물\n\n필통, 물통, 우산을 챙깁니다.\n\n## 아침 활동 순서\n\n등교하면 가방 정리를 하고 독서를 한 뒤 아침 인사를 나눕니다.\n\n## 오늘 할 일\n\n수학 익힘책 풀기와 일기 쓰기를 끝내야 합니다.',
+  checks:[
+    {label:'🆕 - 리스트가 3개 이상 있다', test:function(s){ return countMatch(s,/^- (?!\[)/gm) >= 3; }},
+    {label:'🆕 숫자 리스트가 3개 이상 있다', test:function(s){ return countMatch(s,/^\d+\. .+/gm) >= 3; }},
+    {label:'🆕 태스크 리스트(- [ ])가 2개 이상 있다', test:function(s){ return countMatch(s,/^- \[[ xX]\] .+/gm) >= 2; }},
+    {label:'🔁 제목 2(##)가 2개 이상 유지되고 있다', test:function(s){ return countMatch(s,/^## .+/gm) >= 2; }}
+  ],
+  hint:'문장을 지우고 항목만 남기세요. 숫자는 모두 1. 로 써도 자동으로 매겨집니다.',
+  hintCode:'## 내일 준비물\n\n- 필통\n- 물통\n- 우산\n\n## 아침 활동 순서\n\n1. 가방 정리\n2. 독서\n3. 아침 인사\n\n## 오늘 할 일\n\n- [ ] 수학 익힘책 풀기\n- [ ] 일기 쓰기'
+},
+{
+  chip:'M1-3', level:'미션 1 · 기초 — 문법 장착', time:'7분', title:'텍스트 꾸미기',
+  intro:'<p>취소된 내용은 <code>~~취소선~~</code>, 꼭 기억할 내용은 <code>==형광펜==</code>, 살짝 강조는 <code>*기울임*</code>으로 표시합니다.</p><pre>~~취소할 글자~~\n==강조할 글자==\n*기울일 글자*</pre><div class="tip"><span class="tiptitle">알아두기</span><br><code>==형광펜==</code>은 옵시디언 확장 문법입니다. 다른 앱에서는 안 될 수 있어요.</div>',
+  task:'<strong>취소된 "우유 급식"에 취소선</strong>, <strong>"금요일 재량휴업일"에 형광펜</strong>, 아무 곳에나 <strong>기울임 1곳</strong>을 넣으세요. 그리고 🔁 복습 — 태스크 리스트에 <strong>"우산 챙기기"를 추가해 3개</strong>로 만드세요.',
+  starter:'## 오늘의 공지\n\n우유 급식이 취소되었습니다.\n\n금요일 재량휴업일을 잊지 마세요.\n\n## 오늘 할 일\n\n- [ ] 알림장 확인\n- [ ] 가정통신문 전달',
+  checks:[
+    {label:'🆕 ~~취소선~~이 있다', test:function(s){ return /~~[^~\n]+~~/.test(s); }},
+    {label:'🆕 ==형광펜==이 있다', test:function(s){ return /==[^=\n]+==/.test(s); }},
+    {label:'🆕 *기울임*이 있다', test:function(s){ return /(^|[^*])\*[^*\n]+\*(?!\*)/m.test(s); }},
+    {label:'🔁 태스크 리스트가 3개 이상이다', test:function(s){ return countMatch(s,/^- \[[ xX]\] .+/gm) >= 3; }}
+  ],
+  hint:'물결 2개 = 취소선, 등호 2개 = 형광펜, 별표 1개 = 기울임.',
+  hintCode:'~~우유 급식~~이 취소되었습니다.\n\n==금요일 재량휴업일==을 *잊지* 마세요.\n\n## 오늘 할 일\n\n- [ ] 알림장 확인\n- [ ] 가정통신문 전달\n- [ ] 우산 챙기기'
+},
+{
+  chip:'M1-4', level:'미션 1 · 기초 — 문법 장착', time:'7분', title:'인용문과 수평선',
+  intro:'<p>인용문은 <code>&gt;</code>를 쓰고 띄어씁니다. 여러 줄에 이어 쓸 수 있고, 마지막 줄에 <code>&gt; - 출처</code>를 붙입니다. 구간을 나누는 수평선은 <code>---</code>인데, <strong>바로 윗줄에 글자가 있으면 수평선이 아니라 그 줄이 제목으로 변합니다.</strong> 반드시 위를 비우세요.</p><pre>&gt; 여러 줄에 걸쳐서\n&gt; 인용할 수 있다\n&gt; - 출처\n\n---</pre>',
+  task:'선생님 한마디를 <strong>2줄 인용문 + 출처(&gt; - 담임 선생님)</strong>로 만들고, 두 구역 사이에 <strong>빈 줄을 지킨 수평선</strong>을 넣으세요. 🔁 복습 — <strong>굵게 1곳, 형광펜 1곳</strong>도 포함하세요.',
+  starter:'## 선생님 한마디\n\n실수해도 괜찮아. 다시 하면 되니까.\n\n## 내일 안내\n\n체육복을 입고 아침 8시 40분까지 등교합니다.',
+  checks:[
+    {label:'🆕 인용문(>)이 2줄 이상 이어진다', test:function(s){ return countMatch(s,/^> ?.+/gm) >= 2; }},
+    {label:'🆕 출처 인용 행(> - ...)이 있다', test:function(s){ return /^> ?- .+/m.test(s); }},
+    {label:'🆕 빈 줄을 지킨 수평선이 있고, 제목 변신 사고가 없다', test:function(s){ return hasRealHr(s) && noSetextAccident(s); }},
+    {label:'🔁 굵게가 있다', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s); }},
+    {label:'🔁 형광펜이 있다', test:function(s){ return /==[^=\n]+==/.test(s); }}
+  ],
+  hint:'--- 위아래를 빈 줄로 비우는 것이 핵심입니다.',
+  hintCode:'## 선생님 한마디\n\n> 실수해도 괜찮아.\n> 다시 하면 되니까.\n> - 담임 선생님\n\n---\n\n## 내일 안내\n\n**체육복**을 입고 ==아침 8시 40분==까지 등교합니다.'
+},
+{
+  chip:'M1-5', level:'미션 1 · 기초 — 문법 장착', time:'9분', title:'미션 1 최종 — 알림장 완성',
+  intro:'<p>미션 1에서 배운 문법 전부를 사용해, 서식 없는 평문 알림장을 완성된 문서로 바꿉니다. 이번에는 새 기능이 없습니다 — <strong>전부 반복 훈련</strong>입니다.</p>',
+  task:'조건 7가지를 모두 만족하도록 알림장을 재구성하세요. 문장을 다듬거나 순서를 바꿔도 좋습니다.',
+  starter:'9월 2일 알림장. 내일은 현장체험학습입니다. 도시락과 물과 돗자리를 챙기세요. 아침 8시 30분까지 등교해야 합니다. 준비 순서는 가방 확인, 안전 교육 듣기, 버스 탑승입니다. 선생님 한마디는 안전이 최우선이라는 것입니다. 멀미약은 미리 먹고 옵니다.',
+  checks:[
+    {label:'🔁 제목 1(#)과 제목 2(##)가 있다', test:function(s){ return /^# .+/m.test(s) && /^## .+/m.test(s); }},
+    {label:'🔁 태스크 리스트가 3개 이상 있다', test:function(s){ return countMatch(s,/^- \[[ xX]\] .+/gm) >= 3; }},
+    {label:'🔁 숫자 리스트가 3개 이상 있다', test:function(s){ return countMatch(s,/^\d+\. .+/gm) >= 3; }},
+    {label:'🔁 굵게가 있다', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s); }},
+    {label:'🔁 형광펜이 있다', test:function(s){ return /==[^=\n]+==/.test(s); }},
+    {label:'🔁 인용문이 있다', test:function(s){ return /^> ?.+/m.test(s); }},
+    {label:'🔁 빈 줄을 지킨 수평선이 있다', test:function(s){ return hasRealHr(s) && noSetextAccident(s); }}
+  ],
+  hint:'챙길 것은 태스크로, 준비 순서는 숫자로, 선생님 한마디는 인용으로.',
+  hintCode:'# 9월 2일 알림장\n\n> 안전이 최우선입니다.\n\n## 내일: 현장체험학습\n\n**아침 8시 30분까지 등교**\n\n### 준비 순서\n\n1. 가방 확인\n2. 안전 교육 듣기\n3. 버스 탑승\n\n### 챙길 것\n\n- [ ] 도시락\n- [ ] 물\n- [ ] 돗자리\n\n==멀미약은 미리 먹고 오기==\n\n---\n\n즐거운 체험학습이 되기를 바랍니다.'
+},
+{
+  chip:'M2-1', level:'미션 2 · 중급 — 조합 훈련', time:'8분', title:'코드 넣기',
+  intro:'<p>문장 안의 코드는 백틱(<code>`</code>)으로 감싸는 <strong>인라인 코드</strong>, 여러 줄은 백틱 3개로 감싸는 <strong>코드 블록</strong>입니다. 여는 <code>```</code> 옆에 언어 이름을 쓰면 하이라이팅됩니다.</p><pre>`인라인 코드`\n\n```python\nprint("hello")\n```</pre>',
+  task:'문장 속 <strong><code>print("환영합니다")</code>는 인라인 코드</strong>로, 아래 실습 코드 두 줄은 <strong>python 지정 코드 블록</strong>으로 만드세요. 🔁 복습 — <strong>숫자 리스트를 유지</strong>하고 <strong>형광펜 1곳</strong>을 추가하세요.',
+  starter:'# 코딩 수업 준비 노트\n\n## 수업 절차\n\n1. 엔트리 접속\n2. 예제 열기\n3. 직접 실행\n\n파이썬 시간에는 print("환영합니다") 를 먼저 실행합니다.\n\n실습 코드\nprint("hello")\nprint("class 5-2")',
+  checks:[
+    {label:'🆕 `인라인 코드`가 있다', test:function(s){ return /`[^`\n]+`/.test(s); }},
+    {label:'🆕 ```python 코드 블록이 있다', test:function(s){ return /^```python\s*$/m.test(s); }},
+    {label:'🆕 코드 블록이 ```로 닫혀 있다', test:function(s){ return countMatch(s,/^```/gm) >= 2; }},
+    {label:'🔁 숫자 리스트가 3개 이상 유지되고 있다', test:function(s){ return countMatch(s,/^\d+\. .+/gm) >= 3; }},
+    {label:'🔁 형광펜이 있다', test:function(s){ return /==[^=\n]+==/.test(s); }}
+  ],
+  hint:'여는 백틱 3개 옆에 python, 닫는 백틱 3개를 잊지 마세요.',
+  hintCode:'# 코딩 수업 준비 노트\n\n## 수업 절차\n\n1. 엔트리 접속\n2. 예제 열기\n3. 직접 실행\n\n파이썬 시간에는 `print("환영합니다")` 를 먼저 실행합니다.\n\n## 실습 코드\n\n```python\nprint("hello")\nprint("class 5-2")\n```\n\n==코드는 한 줄씩 실행하며 확인하기=='
+},
+{
+  chip:'M2-2', level:'미션 2 · 중급 — 조합 훈련', time:'8분', title:'하위 리스트로 계층 만들기',
+  intro:'<p>리스트 항목 아래에 <strong>공백 2칸(옵시디언에서는 Tab)</strong>을 넣고 <code>-</code>를 쓰면 하위 리스트가 됩니다. 태스크 리스트도 똑같이 들여쓸 수 있습니다.</p><pre>- 상위 항목\n  - 하위 항목\n- [ ] 상위 할 일\n  - [ ] 하위 할 일</pre>',
+  task:'모둠 역할을 <strong>상위-하위 리스트</strong>로 정리하고(1모둠 아래에 "사진 정리", "활동지 정리"), "활동지 인쇄" 아래에 <strong>들여쓴 하위 태스크</strong> "양면 인쇄인지 확인"을 추가하세요. 🔁 복습 — <strong>굵게 1곳</strong>을 넣으세요.',
+  starter:'## 모둠별 역할\n\n1모둠은 기록을 맡고 세부적으로 사진 정리와 활동지 정리를 합니다. 2모둠은 발표를 맡습니다.\n\n## 준비 확인\n\n- [ ] 활동지 인쇄\n- [ ] 모둠 자리 배치',
+  checks:[
+    {label:'🆕 들여쓴 하위 리스트가 있다', test:function(s){ return /^(\s{2,}|\t)- (?!\[)/m.test(s); }},
+    {label:'🆕 들여쓴 하위 태스크(- [ ])가 있다', test:function(s){ return /^(\s{2,}|\t)- \[[ xX]\] .+/m.test(s); }},
+    {label:'🔁 상위 리스트 항목이 2개 이상 있다', test:function(s){ return countMatch(s,/^- .+/gm) >= 2; }},
+    {label:'🔁 굵게가 있다', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s); }}
+  ],
+  hint:'하위 항목은 줄 맨 앞에 공백 2칸을 넣습니다.',
+  hintCode:'## 모둠별 역할\n\n- 1모둠: **기록**\n  - 사진 정리\n  - 활동지 정리\n- 2모둠: 발표\n\n## 준비 확인\n\n- [ ] 활동지 인쇄\n  - [ ] 양면 인쇄인지 확인\n- [ ] 모둠 자리 배치'
+},
+{
+  chip:'M2-3', level:'미션 2 · 중급 — 조합 훈련', time:'10분', title:'독서 노트 — 인용 심화',
+  intro:'<p>이번 단계는 새 문법이 없습니다. <strong>인용문, 수평선, 취소선, 태스크 리스트를 한 문서 안에서 조합</strong>하는 훈련입니다. 책 발췌는 인용문의 대표적인 쓰임새입니다.</p>',
+  task:'여우의 말을 <strong>2줄 인용 + 출처(&gt; - 생텍쥐페리)</strong>로 만들고, 발췌와 느낀 점 사이에 <strong>수평선</strong>을 넣으세요. <strong>"예전에 쓴 감상"에 취소선</strong>, <strong>다음에 할 일 2가지는 태스크 리스트</strong>로 정리하세요.',
+  starter:'# 독서 노트 - 어린 왕자\n\n가장 중요한 것은 눈에 보이지 않아. 여우가 한 말이다.\n\n느낀 점: 관계 맺기의 의미를 생각하게 되었다. 예전에 쓴 감상은 지웠다.\n\n다음에 할 일: 인상 깊은 문장 더 찾기, 독서록 쓰기',
+  checks:[
+    {label:'🔁 인용문이 2줄 이상 이어진다', test:function(s){ return countMatch(s,/^> ?.+/gm) >= 2; }},
+    {label:'🔁 출처 인용 행(> - ...)이 있다', test:function(s){ return /^> ?- .+/m.test(s); }},
+    {label:'🔁 빈 줄을 지킨 수평선이 있다', test:function(s){ return hasRealHr(s) && noSetextAccident(s); }},
+    {label:'🔁 취소선이 있다', test:function(s){ return /~~[^~\n]+~~/.test(s); }},
+    {label:'🔁 태스크 리스트가 2개 이상 있다', test:function(s){ return countMatch(s,/^- \[[ xX]\] .+/gm) >= 2; }}
+  ],
+  hint:'인용 → 수평선 → 느낀 점 → 할 일 순서의 구조를 추천합니다.',
+  hintCode:'# 독서 노트 — 어린 왕자\n\n> 가장 중요한 것은\n> 눈에 보이지 않아.\n> - 생텍쥐페리, 어린 왕자\n\n---\n\n## 느낀 점\n\n관계 맺기의 의미를 생각하게 되었다. ~~예전에 쓴 감상~~\n\n## 다음에 할 일\n\n- [ ] 인상 깊은 문장 더 찾기\n- [ ] 독서록 쓰기'
+},
+{
+  chip:'M2-4', level:'미션 2 · 중급 — 조합 훈련', time:'14분', title:'미션 2 최종 — 실험 보고서 노트',
+  intro:'<p>미션 1과 미션 2의 문법을 총동원해, 평문으로 쓰인 <strong>과학 실험 보고서</strong>를 구조화된 노트로 바꿉니다. 관찰 기록 원본처럼 <strong>있는 그대로 보존해야 하는 데이터는 코드 블록</strong>에 넣는 것이 요령입니다.</p>',
+  task:'조건 8가지를 모두 만족하는 실험 보고서를 완성하세요.',
+  starter:'용해 실험 보고서. 실험 목표는 소금이 물에 녹는 빠르기를 비교하는 것이다. 준비물은 비커 두 개, 소금, 찬물과 따뜻한 물이다. 실험 절차는 첫째 두 비커에 같은 양의 물을 붓는다. 둘째 각각 소금 한 숟가락을 넣는다. 셋째 저으면서 녹는 시간을 잰다. 관찰 기록 원본은 찬물 3분 12초, 따뜻한 물 1분 40초이다. 결론은 물의 온도가 높을수록 빨리 녹는다는 것이다. 다음 실험에서는 설탕으로도 해 보고 젓는 빠르기를 같게 유지해야 한다.',
+  checks:[
+    {label:'🔁 제목 1(#)과 제목 2(##)가 있다', test:function(s){ return /^# .+/m.test(s) && /^## .+/m.test(s); }},
+    {label:'🔁 숫자 리스트(절차)가 3개 이상 있다', test:function(s){ return countMatch(s,/^\d+\. .+/gm) >= 3; }},
+    {label:'🔁 - 리스트(준비물)가 2개 이상 있다', test:function(s){ return countMatch(s,/^- (?!\[)/gm) >= 2; }},
+    {label:'🔁 코드 블록(관찰 기록 원본)이 있다', test:function(s){ return countMatch(s,/^```/gm) >= 2; }},
+    {label:'🔁 형광펜(결론 강조)이 있다', test:function(s){ return /==[^=\n]+==/.test(s); }},
+    {label:'🔁 굵게가 있다', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s); }},
+    {label:'🔁 태스크 리스트(다음 실험 할 일)가 2개 이상 있다', test:function(s){ return countMatch(s,/^- \[[ xX]\] .+/gm) >= 2; }},
+    {label:'🔁 빈 줄을 지킨 수평선이 있다', test:function(s){ return hasRealHr(s) && noSetextAccident(s); }}
+  ],
+  hint:'목표 → 준비물 → 절차 → 관찰 기록(코드 블록) → 결론 → 다음 할 일 구조를 추천합니다.',
+  hintCode:'# 용해 실험 보고서\n\n## 실험 목표\n\n소금이 물에 녹는 빠르기를 **물의 온도에 따라** 비교한다.\n\n## 준비물\n\n- 비커 2개\n- 소금\n- 찬물, 따뜻한 물\n\n## 실험 절차\n\n1. 두 비커에 같은 양의 물을 붓는다\n2. 각각 소금 한 숟가락을 넣는다\n3. 저으면서 녹는 시간을 잰다\n\n## 관찰 기록\n\n```\n찬물: 3분 12초\n따뜻한 물: 1분 40초\n```\n\n==물의 온도가 높을수록 빨리 녹는다==\n\n---\n\n## 다음 실험 할 일\n\n- [ ] 설탕으로도 실험하기\n- [ ] 젓는 빠르기 같게 유지하기'
+},
+{
+  chip:'M3-1', level:'미션 3 · 고급 — 실전 투입', time:'12분', title:'고장난 문서 수리하기',
+  intro:'<p>동료 선생님이 만든 노트가 이상하게 보인다며 도움을 요청했습니다. 미리보기를 보면 <strong>서식이 온통 깨져</strong> 있습니다. 원인은 전부 이번 실습에서 배운 규칙 위반입니다.</p><div class="tip"><span class="tiptitle">디버깅 힌트</span><br>띄어쓰기 누락, 닫는 기호 누락, 수평선 위의 빈 줄, 태스크 리스트의 공란 규칙 — 네 종류의 고장이 숨어 있습니다.</div>',
+  task:'마크다운을 수정해 <strong>문서가 의도대로 보이게</strong> 고치세요. 내용(문장)은 바꾸지 말고 <strong>기호만 수리</strong>합니다.',
+  starter:'#학급 문고 이용 안내\n\n**빌려 갈 때는 대출 공책에 이름을 쓰세요.\n\n반납은 일주일 안에 해 주세요.\n---\n지켜야 할 일\n\n- [ ]대출 공책에 이름 쓰기\n- [x ] 읽은 책 제자리에 꽂기\n-[ ] 책 소중히 다루기',
+  checks:[
+    {label:'🔁 제목의 띄어쓰기가 고쳐졌다 (#학급 → # 학급)', test:function(s){ return /^# .+/m.test(s) && !/^#{1,6}[^#\s]/m.test(s); }},
+    {label:'🔁 굵게 기호가 짝을 이뤄 닫혀 있다', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s) && (s.match(/\*\*/g)||[]).length % 2 === 0; }},
+    {label:'🔁 수평선 위에 빈 줄이 생겨 제목 변신이 사라졌다', test:function(s){ return hasRealHr(s) && noSetextAccident(s); }},
+    {label:'🔁 태스크 리스트 3개가 모두 올바른 형식이다', test:function(s){ return countMatch(s,/^- \[( |x|X)\] .+/gm) >= 3 && allTasksValid(s); }}
+  ],
+  hint:'고장 4곳: # 뒤 공백, ** 닫기, --- 위 빈 줄, 체크박스 공란 규칙(- [ ] / - [x]).',
+  hintCode:'# 학급 문고 이용 안내\n\n**빌려 갈 때는 대출 공책에 이름을 쓰세요.**\n\n반납은 일주일 안에 해 주세요.\n\n---\n\n## 지켜야 할 일\n\n- [ ] 대출 공책에 이름 쓰기\n- [x] 읽은 책 제자리에 꽂기\n- [ ] 책 소중히 다루기'
+},
+{
+  chip:'M3-2', level:'미션 3 · 고급 — 실전 투입', time:'14분', title:'긴 평문 변환 — 하루 수업 일지',
+  intro:'<p>실전에서 가장 많이 만나는 상황 — <strong>한 덩어리로 쓴 긴 기록을 구조화된 노트로 바꾸기</strong>입니다. 변환 전에 먼저 읽으면서 "여기는 제목, 여기는 리스트, 여기는 인용"이라고 머릿속으로 구획을 그려 보세요.</p>',
+  task:'조건 9가지를 모두 만족하는 수업 일지를 완성하세요. 지금까지 배운 <strong>모든 문법이 한 번씩</strong> 들어갑니다.',
+  starter:'7월 24일 금요일 수업 일지. 오늘의 다짐은 기다려 주는 교사가 되자였다. 1교시 수학은 분수의 나눗셈 문제 풀이였고 순서는 복습 퀴즈, 짝 설명 활동, 확인 문제였다. 미주와 현서가 어려워해서 다음 주 보충이 필요하다. 3교시 체육은 비가 와서 취소되었고 교실 놀이로 바꿨다. 다음 주 준비는 공개수업 지도안 완성이 가장 중요하고, 그 외에 보충 자료 만들기, 상담 일지 정리, 학부모 답장 보내기가 있다. 기억할 문장은 아이의 속도는 저마다 다르다는 것이다.',
+  checks:[
+    {label:'🔁 제목 1(#)이 있다', test:function(s){ return /^# .+/m.test(s); }},
+    {label:'🔁 제목 2(##)가 2개 이상 있다', test:function(s){ return countMatch(s,/^## .+/gm) >= 2; }},
+    {label:'🔁 숫자 리스트(수업 순서)가 3개 이상 있다', test:function(s){ return countMatch(s,/^\d+\. .+/gm) >= 3; }},
+    {label:'🔁 태스크 리스트(다음 주 준비)가 3개 이상 있다', test:function(s){ return countMatch(s,/^- \[[ xX]\] .+/gm) >= 3; }},
+    {label:'🔁 취소선(취소된 체육)이 있다', test:function(s){ return /~~[^~\n]+~~/.test(s); }},
+    {label:'🔁 형광펜(가장 중요한 일)이 있다', test:function(s){ return /==[^=\n]+==/.test(s); }},
+    {label:'🔁 굵게가 있다', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s); }},
+    {label:'🔁 인용문(다짐 또는 기억할 문장)이 있다', test:function(s){ return /^> ?.+/m.test(s); }},
+    {label:'🔁 빈 줄을 지킨 수평선이 있다', test:function(s){ return hasRealHr(s) && noSetextAccident(s); }}
+  ],
+  hint:'다짐은 인용으로, 수업 순서는 숫자 리스트로, 취소된 체육은 취소선으로, 다음 주 준비는 태스크로.',
+  hintCode:'# 7월 24일(금) 수업 일지\n\n> 오늘의 다짐: 기다려 주는 교사가 되자\n\n## 1교시 수학 — 분수의 나눗셈\n\n1. 복습 퀴즈\n2. 짝 설명 활동\n3. 확인 문제\n\n미주와 현서가 어려워함 → **다음 주 보충 필요**\n\n## 3교시 체육\n\n~~체육~~ 비로 취소 → 교실 놀이로 변경\n\n---\n\n## 다음 주 준비\n\n- [ ] ==공개수업 지도안 완성== (최우선)\n- [ ] 보충 자료 만들기\n- [ ] 상담 일지 정리\n- [ ] 학부모 답장 보내기\n\n> 아이의 속도는 저마다 다르다.'
+},
+{
+  chip:'M3-3', level:'미션 3 · 고급 — 실전 투입', time:'14분', title:'최종 미션 — 나만의 학급 운영 홈 노트',
+  intro:'<p>마지막 미션은 <strong>자유 설계</strong>입니다. 주어진 예시문 없이, 옵시디언에 실제로 만들어 쓸 <strong>나의 학급 운영 홈 노트</strong>를 설계하세요. 내용은 자유이지만, 지금까지 훈련한 문법이 전부 들어가야 합니다.</p><div class="tip"><span class="tiptitle">추천 재료</span><br>우리 반 소개 · 이번 주 할 일 · 시간표 변경 사항 · 학급 규칙 · 선생님의 다짐 · 자주 쓰는 안내 문구</div>',
+  task:'조건 10가지를 모두 만족하는 <strong>나만의 홈 노트</strong>를 자유롭게 만드세요. 완성한 노트는 실습이 끝나면 실제 옵시디언에 복사해 옮겨 보세요.',
+  starter:'(자유 미션) 나만의 학급 운영 홈 노트를 여기에 설계해 보세요.',
+  checks:[
+    {label:'🔁 제목 1(#)과 제목 2(##) 2개 이상', test:function(s){ return /^# .+/m.test(s) && countMatch(s,/^## .+/gm) >= 2; }},
+    {label:'🔁 굵게와 기울임 모두', test:function(s){ return /\*\*[^*\n]+\*\*/.test(s) && /(^|[^*])\*[^*\n]+\*(?!\*)/m.test(s); }},
+    {label:'🔁 형광펜', test:function(s){ return /==[^=\n]+==/.test(s); }},
+    {label:'🔁 취소선', test:function(s){ return /~~[^~\n]+~~/.test(s); }},
+    {label:'🔁 태스크 리스트 3개 이상', test:function(s){ return countMatch(s,/^\s*- \[[ xX]\] .+/gm) >= 3; }},
+    {label:'🔁 숫자 리스트 2개 이상', test:function(s){ return countMatch(s,/^\d+\. .+/gm) >= 2; }},
+    {label:'🔁 들여쓴 하위 리스트', test:function(s){ return /^(\s{2,}|\t)- /m.test(s); }},
+    {label:'🔁 인용문', test:function(s){ return /^> ?.+/m.test(s); }},
+    {label:'🔁 빈 줄을 지킨 수평선', test:function(s){ return hasRealHr(s) && noSetextAccident(s); }},
+    {label:'🔁 코드(인라인 또는 블록)', test:function(s){ return /`[^`\n]+`/.test(s) || countMatch(s,/^```/gm) >= 2; }}
+  ],
+  hint:'구조 예시가 필요하면 참고하세요. 내용은 꼭 여러분의 학급으로 바꾸세요!',
+  hintCode:'# 5학년 2반 홈\n\n> 우리 반 약속: *스스로*, 그리고 **함께**\n\n## 이번 주 할 일\n\n- [ ] 학급 회의 안건 모으기\n- [ ] ==공개수업 준비==\n- [x] 자리 바꾸기\n\n## 시간표 변경\n\n1. 수요일: ~~체육~~ → 음악\n2. 금요일: 동아리 활동\n\n## 학급 규칙\n\n- 존중하기\n  - 말로, 행동으로\n- 정리하기\n\n## 자주 쓰는 문구\n\n안내장 마무리는 `감사합니다. 5학년 2반 담임 드림` 으로 통일\n\n---\n\n*오늘도 수고했어요!*'
+}
+];
+/* ===== LOGIC:END ===== */
+
+/* ---------- 앱 상태 및 UI ---------- */
+var state = {
+  current:0,
+  done:LESSONS.map(function(){return false;}),
+  answers:LESSONS.map(function(l){return l.starter || '';})
+};
+var nav = document.getElementById('nav');
+var main = document.getElementById('main');
+
+function renderNav(){
+  var html = '', lastLv = '';
+  LESSONS.forEach(function(l, idx){
+    if(l.level !== lastLv){ html += '<div class="lv">'+l.level+'</div>'; lastLv = l.level; }
+    html += '<button data-i="'+idx+'" class="'+(idx===state.current?'active':'')+'">'
+          + '<span>'+l.chip+' · '+l.title+'</span>' + (state.done[idx] ? '<span class="done">✓</span>' : '') + '</button>';
+  });
+  nav.innerHTML = html;
+  nav.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){ go(parseInt(b.dataset.i,10)); });
+  });
+  var doneCount = state.done.filter(Boolean).length;
+  document.getElementById('progressText').textContent = doneCount + ' / ' + LESSONS.length;
+  document.getElementById('progressBar').style.width = (doneCount / LESSONS.length * 100) + '%';
+}
+
+function go(i){
+  state.current = i;
+  if(i >= LESSONS.length){ renderFinish(); } else { renderLesson(); }
+  renderNav();
+  window.scrollTo(0,0);
+}
+
+function headHtml(l){
+  return '<div class="lesson-head"><span class="booknum">'+l.chip+'</span><h2>'+l.title+'</h2></div>'
+       + '<div class="intro">'+l.intro+'</div>'
+       + '<div class="task">📝 <strong>미션</strong><br>'+l.task+'</div>';
+}
+function footerHtml(idx, labelOverride){
+  var last = idx+1 >= LESSONS.length;
+  return '<div class="footer-nav">'
+    + (idx > 0 ? '<button class="btn" id="prevBtn">← 이전</button>' : '')
+    + '<button class="btn primary" id="nextBtn" disabled>'+(labelOverride || (last ? '실습 마치기 🎓' : '다음 단계 →'))+'</button>'
+    + '<span class="status-msg" id="statusMsg">🎉 통과! 다음으로 넘어가세요.</span>'
+    + '</div>';
+}
+function bindFooter(idx){
+  if(idx > 0){ document.getElementById('prevBtn').addEventListener('click', function(){ go(idx-1); }); }
+  document.getElementById('nextBtn').addEventListener('click', function(){ go(idx+1); });
+}
+
+function renderLesson(){
+  var idx = state.current;
+  var l = LESSONS[idx];
+
+  if(l.type === 'info'){
+    main.innerHTML = '<div class="card">'+headHtml(l) + footerHtml(idx, '미션 1 시작 →') + '</div>';
+    bindFooter(idx);
+    applyPass(idx, true);
+    return;
+  }
+
+  main.innerHTML =
+    '<div class="card">'+headHtml(l)+'</div>'
+    + '<div class="work">'
+    + '<div class="pane"><div class="pane-title">✏️ 여기에 마크다운을 작성하세요 <button class="hintbtn" id="hintBtn">힌트 보기</button></div><textarea id="editor" spellcheck="false"></textarea></div>'
+    + '<div class="pane"><div class="pane-title">👀 실시간 미리보기</div><div class="preview" id="preview"></div></div>'
+    + '</div>'
+    + '<div class="hint" id="hintBox">💡 ' + l.hint + (l.hintCode ? '<pre>'+escapeHtml(l.hintCode)+'</pre>' : '') + '</div>'
+    + '<div class="checks card"><h3>통과 조건</h3><div id="checkList"></div>'
+    + footerHtml(idx) + '</div>';
+
+  var editor = document.getElementById('editor');
+  editor.value = state.answers[idx];
+  document.getElementById('hintBtn').addEventListener('click', function(){
+    document.getElementById('hintBox').classList.toggle('show');
+  });
+  bindFooter(idx);
+  editor.addEventListener('input', function(){
+    state.answers[idx] = editor.value;
+    update(idx);
+  });
+  update(idx);
+}
+
+function update(idx){
+  var l = LESSONS[idx];
+  var src = state.answers[idx];
+  document.getElementById('preview').innerHTML = renderMD(src);
+  var allPass = true;
+  document.getElementById('checkList').innerHTML = l.checks.map(function(c){
+    var pass = false;
+    try{ pass = !!c.test(src); }catch(e){ pass = false; }
+    if(!pass) allPass = false;
+    return '<div class="check '+(pass?'pass':'')+'"><span class="mark">'+(pass?'✓':'○')+'</span><span>'+c.label+'</span></div>';
+  }).join('');
+  applyPass(idx, allPass);
+}
+function applyPass(idx, allPass){
+  document.getElementById('nextBtn').disabled = !allPass;
+  document.getElementById('statusMsg').classList.toggle('show', allPass);
+  if(allPass && !state.done[idx]){ state.done[idx] = true; renderNav(); }
+}
+
+function renderFinish(){
+  main.innerHTML =
+    '<div class="card finish">'
+    + '<div class="big">🏆</div>'
+    + '<h2>3개 미션 완주!</h2>'
+    + '<p>기초에서 장착한 문법을 중급에서 조합하고 고급에서 실전에 투입했습니다. 같은 문법을 여러 번 반복했으니 이제 손이 기억할 것입니다.</p>'
+    + '<p>마지막으로 만든 <strong>학급 운영 홈 노트</strong>를 실제 옵시디언에 붙여 넣어, 오늘부터 진짜 노트로 사용해 보세요.</p>'
+    + '<p style="margin-top:16px"><button class="btn primary" onclick="location.reload()">처음부터 다시 하기</button></p>'
+    + '<p class="note">※ 이 페이지는 저장 기능이 없습니다. 새로고침하면 작성 내용이 사라지니, 남기고 싶은 답안은 옵시디언 노트로 복사해 두세요.</p>'
+    + '</div>';
+}
+
+renderNav();
+renderLesson();
+</script>
+</body>
+</html>
