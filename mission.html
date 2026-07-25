@@ -121,12 +121,12 @@
 <div class="modal-bg" id="modalBg">
   <div class="modal">
     <h3>🎓 수강완료 제출</h3>
-    <p>모든 미션을 완료했습니다! 이름을 입력하고 제출 버튼을 누르면 메일 앱이 열립니다. <strong>메일 앱에서 [보내기]를 눌러야</strong> 제출이 완료됩니다.</p>
-    <div class="sent" id="sentMsg">✓ 메일 앱이 열렸습니다. 보내기를 누르면 제출 완료입니다!</div>
+    <p>모든 미션을 완료했습니다! 이름을 입력하고 제출 버튼을 누르면 <strong>수강완료 명단에 바로 등록</strong>됩니다.</p>
+    <div class="sent" id="sentMsg">✓ 제출 완료! 수강완료 명단에 이름이 올라갔습니다.</div>
     <input type="text" id="studentName" placeholder="이름을 입력하세요 (예: 홍길동)" maxlength="30">
     <div class="row">
       <button class="btn" id="modalCancel">닫기</button>
-      <button class="btn primary" id="modalSend">제출 메일 보내기</button>
+      <button class="btn primary" id="modalSend">제출하기</button>
     </div>
   </div>
 </div>
@@ -484,7 +484,7 @@ function renderNav(){
 }
 
 /* ---------- 수강완료 제출 ---------- */
-var TEACHER_EMAIL = 'kd12345@gmail.com';
+var SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbx1igAOA8cgw5PCdHY_zZV92WasQ9nu3U5TOzTqe7JlF4r62u8gPHTr9f5_gwwhyfji/exec';
 function allMissionsDone(){
   return LESSONS.every(function(l, i){ return l.type === 'info' || state.done[i]; });
 }
@@ -495,29 +495,34 @@ function openSubmitModal(){
   document.getElementById('studentName').focus();
 }
 function closeSubmitModal(){ document.getElementById('modalBg').classList.remove('show'); }
-function sendCompletionMail(){
+var submitting = false;
+function sendCompletion(){
+  if(submitting) return;
   var name = document.getElementById('studentName').value.trim();
   if(!name){ document.getElementById('studentName').focus(); return; }
-  var missionCount = LESSONS.filter(function(l){ return l.type !== 'info'; }).length;
-  var now = new Date();
-  var when = now.getFullYear()+'년 '+(now.getMonth()+1)+'월 '+now.getDate()+'일 '
-           + now.getHours()+'시 '+now.getMinutes()+'분';
-  var subject = '[마크다운 실습 수강완료] ' + name;
-  var body = '마크다운 미션 실습 수강완료 보고\n\n'
-    + '이름: ' + name + '\n'
-    + '완료 미션: 기초 · 중급 · 고급 전체 (' + missionCount + '단계)\n'
-    + '완료 일시: ' + when + '\n\n'
-    + '위 수강생이 모든 미션의 통과 조건을 충족하여 실습을 완료했습니다.';
-  window.location.href = 'mailto:' + TEACHER_EMAIL
-    + '?subject=' + encodeURIComponent(subject)
-    + '&body=' + encodeURIComponent(body);
-  document.getElementById('sentMsg').classList.add('show');
+  var btn = document.getElementById('modalSend');
+  submitting = true;
+  btn.disabled = true;
+  btn.textContent = '제출 중...';
+  fetch(SUBMIT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ name: name, course: '마크다운 미션 실습' })
+  }).then(function(){
+    document.getElementById('sentMsg').classList.add('show');
+    btn.textContent = '제출 완료 ✓';
+  }).catch(function(){
+    submitting = false;
+    btn.disabled = false;
+    btn.textContent = '제출하기';
+    alert('제출에 실패했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요. 계속 안 되면 선생님께 직접 알려 주세요.');
+  });
 }
 document.getElementById('submitBtn').addEventListener('click', openSubmitModal);
 document.getElementById('modalCancel').addEventListener('click', closeSubmitModal);
-document.getElementById('modalSend').addEventListener('click', sendCompletionMail);
+document.getElementById('modalSend').addEventListener('click', sendCompletion);
 document.getElementById('modalBg').addEventListener('click', function(e){ if(e.target === this) closeSubmitModal(); });
-document.getElementById('studentName').addEventListener('keydown', function(e){ if(e.key === 'Enter') sendCompletionMail(); });
+document.getElementById('studentName').addEventListener('keydown', function(e){ if(e.key === 'Enter') sendCompletion(); });
 
 function go(i){
   state.current = i;

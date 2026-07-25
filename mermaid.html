@@ -69,6 +69,18 @@
   .btn.primary:disabled{background:#cbb8f5; border-color:#cbb8f5; cursor:not-allowed;}
   .status-msg{font-size:.88rem; color:var(--ok); font-weight:600; display:none;}
   .status-msg.show{display:inline;}
+    .submit-btn{font-family:inherit; font-size:.85rem; font-weight:700; border-radius:10px; cursor:pointer; padding:9px 18px; border:none; background:var(--ok); color:#fff; flex-shrink:0;}
+  .submit-btn:disabled{background:#c9cdd6; cursor:not-allowed;}
+  .modal-bg{display:none; position:fixed; inset:0; background:rgba(42,36,56,.45); z-index:50; align-items:center; justify-content:center; padding:20px;}
+  .modal-bg.show{display:flex;}
+  .modal{background:#fff; border-radius:16px; padding:26px 28px; max-width:420px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,.25);}
+  .modal h3{font-size:1.1rem; margin-bottom:6px;}
+  .modal p{font-size:.88rem; color:var(--sub); margin-bottom:14px;}
+  .modal input{width:100%; padding:11px 14px; border:1.5px solid var(--line); border-radius:10px; font-size:.95rem; font-family:inherit; outline:none; margin-bottom:14px;}
+  .modal input:focus{border-color:var(--accent);}
+  .modal .row{display:flex; gap:10px; justify-content:flex-end;}
+  .modal .sent{display:none; background:var(--ok-soft); color:var(--ok); border-radius:10px; padding:10px 14px; font-size:.86rem; font-weight:600; margin-bottom:14px;}
+  .modal .sent.show{display:block;}
   .finish{text-align:center; padding:40px 20px;}
   .finish .big{font-size:2.4rem;}
   .finish h2{margin:10px 0;}
@@ -87,7 +99,21 @@
     <span id="progressText">0 / 0</span>
     <div class="bar"><i id="progressBar"></i></div>
   </div>
+  <button class="submit-btn" id="submitBtn" disabled title="모든 단계를 완료하면 활성화됩니다">✉️ 수강완료 제출</button>
 </header>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>🎓 수강완료 제출</h3>
+    <p>모든 단계를 완료했습니다! 이름을 입력하고 제출 버튼을 누르면 <strong>수강완료 명단에 바로 등록</strong>됩니다.</p>
+    <div class="sent" id="sentMsg">✓ 제출 완료! 수강완료 명단에 이름이 올라갔습니다.</div>
+    <input type="text" id="studentName" placeholder="이름을 입력하세요 (예: 홍길동)" maxlength="30">
+    <div class="row">
+      <button class="btn" id="modalCancel">닫기</button>
+      <button class="btn primary" id="modalSend">제출하기</button>
+    </div>
+  </div>
+</div>
 
 <div class="layout">
   <nav id="nav"></nav>
@@ -424,10 +450,56 @@ function renderFinish(){
     + '<h2>머메이드 실습 완주!</h2>'
     + '<p>순서도, 분기, 시퀀스, 마인드맵, 타임라인, 파이, 간트까지 — 일곱 가지 다이어그램을 전부 텍스트로 그렸습니다.</p>'
     + '<p>마지막에 만든 <strong>수업 설계도</strong>를 옵시디언 노트의 <code>```mermaid</code> 코드 블록에 붙여 넣어 보세요. 수업 기록과 설계도가 한 노트에 남습니다.</p>'
-    + '<p style="margin-top:16px"><button class="btn primary" onclick="location.reload()">처음부터 다시 하기</button></p>'
+    + '<p style="margin-top:16px"><button class="btn primary" onclick="openSubmitModal()" style="background:var(--ok); border-color:var(--ok);">✉️ 수강완료 제출하기</button> '
+    + '<button class="btn" onclick="location.reload()">처음부터 다시 하기</button></p>'
     + '<p class="note">※ 이 페이지는 저장 기능이 없습니다. 남기고 싶은 다이어그램 코드는 옵시디언 노트로 복사해 두세요.</p>'
     + '</div>';
 }
+
+
+/* ---------- 수강완료 제출 ---------- */
+var SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbx1igAOA8cgw5PCdHY_zZV92WasQ9nu3U5TOzTqe7JlF4r62u8gPHTr9f5_gwwhyfji/exec';
+var COURSE = '머메이드 실습';
+function allMissionsDone(){
+  return LESSONS.every(function(l, i){ return l.type === 'info' || state.done[i]; });
+}
+function openSubmitModal(){
+  if(!allMissionsDone()) return;
+  document.getElementById('sentMsg').classList.remove('show');
+  document.getElementById('modalBg').classList.add('show');
+  document.getElementById('studentName').focus();
+}
+function closeSubmitModal(){ document.getElementById('modalBg').classList.remove('show'); }
+var submitting = false;
+function sendCompletion(){
+  if(submitting) return;
+  var name = document.getElementById('studentName').value.trim();
+  if(!name){ document.getElementById('studentName').focus(); return; }
+  var btn = document.getElementById('modalSend');
+  submitting = true;
+  btn.disabled = true;
+  btn.textContent = '제출 중...';
+  fetch(SUBMIT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ name: name, course: COURSE })
+  }).then(function(){
+    document.getElementById('sentMsg').classList.add('show');
+    btn.textContent = '제출 완료 \u2713';
+  }).catch(function(){
+    submitting = false;
+    btn.disabled = false;
+    btn.textContent = '제출하기';
+    alert('제출에 실패했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요. 계속 안 되면 선생님께 직접 알려 주세요.');
+  });
+}
+document.getElementById('submitBtn').addEventListener('click', openSubmitModal);
+document.getElementById('modalCancel').addEventListener('click', closeSubmitModal);
+document.getElementById('modalSend').addEventListener('click', sendCompletion);
+document.getElementById('modalBg').addEventListener('click', function(e){ if(e.target === this) closeSubmitModal(); });
+document.getElementById('studentName').addEventListener('keydown', function(e){ if(e.key === 'Enter') sendCompletion(); });
+var _renderNav0 = renderNav;
+renderNav = function(){ _renderNav0(); var b = document.getElementById('submitBtn'); if(b) b.disabled = !allMissionsDone(); };
 
 renderNav();
 renderLesson();
