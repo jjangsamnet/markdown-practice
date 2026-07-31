@@ -86,34 +86,32 @@
   </div>
 
   <div class="card">
-    <h2><span class="num">2교시</span>볼트에 AI 연결하기</h2>
-    <p>1일차에 배운 마크다운이 AI 활용 역량으로 바뀌는 시간입니다. Claude 데스크톱 앱을 준비하세요.</p>
-    <label class="step"><input type="checkbox" class="chk"><span>Claude 데스크톱 대화에서 <b>폴더 추가</b>로 예제 볼트 폴더를 연결했다</span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>"수업일지 전체를 읽고 이번 달 회고 노트를 만들어 볼트에 저장해 줘"를 실행하고, 옵시디언에서 새 노트를 확인했다</span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>같은 요청을 <b>평문 한 줄</b>과 아래의 <b>구조화 프롬프트</b>로 각각 보내고, 결과 차이를 3가지 기록했다</span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>AI가 만든 노트를 원본 기록과 대조해 <b>원본에 없는 내용(환각)</b>이 있는지 검증했다</span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>모둠 토론: "학생 기록이 든 볼트를 AI 도구에 연결해도 되는가" — 판단 기준 3가지를 모둠에서 도출했다 <span class="hint">힌트: 데이터가 어디로 가는가 · 접근 범위를 통제할 수 있는가 · 누가 만든 도구인가</span></span></label>
+    <h2><span class="num">2교시</span>제미나이로 기록 분석하기 (AI 스튜디오)</h2>
+    <p>1일차에 배운 마크다운이 AI 활용 역량으로 바뀌는 시간입니다. <b>구글 계정만 있으면 무료</b>인 Google AI 스튜디오(aistudio.google.com)를 사용합니다.</p>
+    <label class="step"><input type="checkbox" class="chk"><span><b>aistudio.google.com</b>에 구글 계정으로 로그인하고 새 채팅(Chat)을 열었다 <span class="hint">학교 구글 계정도 가능 · 별도 설치 없음</span></span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>볼트 폴더에서 <b>수업일지 2편과 학생 노트 2편(.md 파일)</b>을 AI 스튜디오에 업로드하고, "이 기록들을 읽고 이번 달 수업 회고를 써 줘"를 실행했다 <span class="hint">＋ 버튼 → 파일 업로드 · md 파일은 텍스트로 읽힙니다</span></span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>같은 요청을 <b>평문 한 줄</b>과 아래의 <b>구조화 프롬프트</b>(System instructions 활용)로 각각 실행하고, 결과 차이를 3가지 기록했다 <span class="hint">화면 오른쪽 System instructions 칸에 역할·조건을 넣는 것이 AI 스튜디오의 힘</span></span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>마음에 드는 결과를 복사해 옵시디언 볼트의 40_자료실에 <b>"월간 회고" 노트로 붙여넣고</b>, 위키링크와 #회고 태그를 달았다</span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>AI가 만든 회고를 원본 기록과 대조해 <b>원본에 없는 내용(환각)</b>이 있는지 검증했다</span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>모둠 토론: "학생 기록을 AI 도구에 업로드해도 되는가" — 판단 기준 3가지를 모둠에서 도출했다 <span class="hint">힌트: 데이터가 어디로 가는가 · 업로드 범위를 내가 고를 수 있는가 · 무료 서비스는 데이터를 어떻게 쓰는가</span></span></label>
 
-    <div class="tip"><b>구조화 프롬프트 예시</b> — 복사해서 여러분의 상황으로 바꿔 쓰세요.</div>
+    <div class="tip"><b>구조화 프롬프트 예시</b> — System instructions 칸에 붙여넣고, 채팅에는 "업로드한 기록으로 이번 달 회고를 작성해 주세요"라고만 입력해 보세요.</div>
     <pre id="promptExample"><button class="copybtn" onclick="copyPrompt()">복사</button># 역할
 당신은 20년 경력의 초등 담임교사이자 기록 정리 전문가입니다.
 
-# 요청
-연결된 볼트의 수업일지들을 읽고 이번 달 수업 회고 노트를 작성해 주세요.
-
 # 조건
-- 볼트의 기록에 실제로 있는 내용만 사용할 것 (추측 금지)
-- 학생 이름이 나오면 [[위키링크]]로 연결할 것
+- 업로드된 기록에 실제로 있는 내용만 사용할 것 (추측 금지)
+- 학생 이름이 나오면 [[학생 이름]] 형태의 위키링크로 감쌀 것
 - 잘된 점 / 아쉬운 점 / 다음 달 시도할 것 구조로 정리할 것
 
 # 출력 형식
-마크다운 노트로 작성하되, 맨 위에 오늘 날짜와 #회고 태그를 넣고
-"40_자료실" 폴더에 "월간 회고"라는 이름으로 저장할 것.</pre>
+옵시디언에 바로 붙여넣을 수 있는 마크다운으로 작성하고,
+맨 위에 오늘 날짜와 #회고 태그를 넣을 것.</pre>
   </div>
 
   <div class="card">
     <h2><span class="num">마무리</span>3일 과정 정리</h2>
-    <label class="step"><input type="checkbox" class="chk"><span>3일 과정을 한 문장으로 정리해 봤다: 쓰기(1일차) → 표현하기(2일차) → <b>쌓고 연결하기(3일차)</b></span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>3일 과정을 한 문장으로 정리해 봤다: 쓰기(1일차) → 표현하기(2일차) → <b>쌓고 연결하기(3일차)</b> — 내 기록은 마크다운으로 남고, AI는 갈아끼울 수 있다</span></label>
     <p style="margin-top:8px;">모든 항목을 체크했다면 화면 위 <b>✉️ 수강완료 제출</b> 버튼으로 이름을 제출하세요. 오늘 만든 볼트는 오늘부터 진짜 "두 번째 뇌"로 사용하시길 바랍니다.</p>
   </div>
 </main>
