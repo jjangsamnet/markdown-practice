@@ -92,6 +92,34 @@
     </a>
   </div>
 
+  <div class="day" data-day="4">
+    <div class="day-head">
+      <span class="day-num">4일차</span>
+      <h2>만들고 세상에 내놓기</h2>
+      <span class="desc">배포 → 바이브 코딩</span>
+      <span class="lock-badge">🔒 수업 개시 전</span>
+    </div>
+
+    <a class="card" href="./day4.html">
+      <div class="row"><span class="order">1·2교시</span><h3>GitHub 배포 + AI와 학급 도구 만들기</h3></div>
+      <p>내 산출물을 GitHub Pages로 발행해 나만의 주소를 만들고, 마크다운 요구사항으로 AI와 학급용 웹 도구를 제작·배포 — 갤러리 워크 포함</p>
+    </a>
+  </div>
+
+  <div class="day" data-day="5">
+    <div class="day-head">
+      <span class="day-num">5일차</span>
+      <h2>종강: 수료 프로젝트 발표회</h2>
+      <span class="desc">발표 → 적용 계획</span>
+      <span class="lock-badge">🔒 수업 개시 전</span>
+    </div>
+
+    <a class="card" href="./day5.html">
+      <div class="row"><span class="order">1·2교시</span><h3>발표회 + 2학기 적용 계획 세우기</h3></div>
+      <p>4일간의 산출물(자료실·도구·볼트)을 3분 발표로 시연하고, 동료 피드백과 2학기 적용 계획 노트로 과정을 마무리합니다</p>
+    </a>
+  </div>
+
   <p class="foot">각 실습은 조건(또는 체크리스트)을 모두 통과하면 다음 단계가 열립니다.<br>모든 단계를 완료하면 화면 위 [수강완료 제출] 버튼으로 이름을 제출하세요.<br><span id="lockNotice"></span></p>
 </div>
 
@@ -99,7 +127,7 @@
 /* ============================================================
    공개할 일차 설정 (강사용)
    수업 당일 아침, 아래 숫자만 바꾸고 커밋하면 해당 일차까지 열립니다.
-   1 = 1일차만 공개 · 2 = 1~2일차 공개 · 3 = 전체 공개
+   1 = 1일차만 공개 · 2 = 1~2일차 · 3 = 1~3일차 · 4 = 1~4일차 · 5 = 전체 공개
    ============================================================ */
 var OPEN_DAYS = 1;
 
@@ -113,7 +141,7 @@ document.querySelectorAll('.day').forEach(function(d){
     });
   }
 });
-if(OPEN_DAYS < 3){
+if(OPEN_DAYS < 5){
   document.getElementById('lockNotice').textContent = '잠긴 일차는 수업 개시와 함께 열립니다.';
 }
 </script>
