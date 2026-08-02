@@ -123,24 +123,24 @@
 
   <div class="card">
     <h2><span class="num">검증</span>수강 확인 문제</h2>
-    <p>실습을 직접 한 사람만 답할 수 있는 3문제입니다. <b>세 문제를 모두 맞혀야</b> 수강완료 제출이 열립니다. (답은 전부 예제 볼트 안에 있습니다)</p>
+    <p>실습을 직접 한 사람만 답할 수 있는 3문제입니다. <b>세 문제를 모두 맞혀야</b> 수강완료 제출이 열립니다. 문제는 문제 은행에서 <b>사람마다 무작위로 출제</b>되므로 옆 사람과 다를 수 있습니다. (답은 전부 예제 볼트 안에 있습니다)</p>
 
     <div class="qbox" id="quiz1">
-      <div class="q"><b>Q1.</b> 그래프 뷰에서 찾은 <b>고립 노트</b>(아무와도 연결되지 않은 노트)의 제목은?</div>
-      <div class="qrow"><input type="text" placeholder="노트 제목을 입력하세요" aria-label="Q1 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
-      <div class="qhint">힌트: STEP 6의 숨은 과제 — 그래프 뷰에서 외딴 점을 찾아보세요.</div>
+      <div class="q"><b>Q1.</b> <span class="qtext"></span></div>
+      <div class="qrow"><input type="text" placeholder="답을 입력하세요" aria-label="Q1 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
+      <div class="qhint"></div>
     </div>
 
     <div class="qbox" id="quiz2">
-      <div class="q"><b>Q2.</b> 「학급 규칙」 노트의 <b>우리 반 3원칙</b> 중 <b>두 번째</b> 원칙은?</div>
-      <div class="qrow"><input type="text" placeholder="한 단어로 입력하세요" aria-label="Q2 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
-      <div class="qhint">힌트: 30_학급운영 폴더를 열어보세요.</div>
+      <div class="q"><b>Q2.</b> <span class="qtext"></span></div>
+      <div class="qrow"><input type="text" placeholder="답을 입력하세요" aria-label="Q2 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
+      <div class="qhint"></div>
     </div>
 
     <div class="qbox" id="quiz3">
-      <div class="q"><b>Q3.</b> 「현장체험학습 계획」의 순서도에서 <b>점심을 먹는 장소</b>는?</div>
-      <div class="qrow"><input type="text" placeholder="장소 이름을 입력하세요" aria-label="Q3 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
-      <div class="qhint">힌트: 머메이드 순서도를 읽어보세요 — 2일차에 배운 다이어그램입니다.</div>
+      <div class="q"><b>Q3.</b> <span class="qtext"></span></div>
+      <div class="qrow"><input type="text" placeholder="답을 입력하세요" aria-label="Q3 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
+      <div class="qhint"></div>
     </div>
   </div>
 
@@ -172,15 +172,76 @@ var COURSE = '3일차 옵시디언+AI 실습';
 
 var checks = Array.prototype.slice.call(document.querySelectorAll('.chk'));
 
-/* ─ 수강 확인 문제 (검증 지점) ─ */
+/* ─ 수강 확인 문제 (검증 지점 · 문제 은행 무작위 출제) ─ */
 function norm(s){
   return String(s||'').toLowerCase().replace(/[\s\-–—_·.「」『』'"“”\[\]]/g, '');
 }
-var QUIZ = [
-  { id:'quiz1', ok:function(a){ return a.indexOf('템플릿') !== -1 && a.indexOf('상담') !== -1; } },
-  { id:'quiz2', ok:function(a){ return a.indexOf('책임') !== -1; } },
-  { id:'quiz3', ok:function(a){ return a.indexOf('잔디') !== -1; } }
+/* 슬롯별 문제 은행 — 접속할 때마다 각 슬롯에서 1문제씩 무작위로 뽑힙니다 */
+var QUIZ_POOL = [
+  /* 슬롯 1: 볼트 구조·그래프 뷰 */
+  [
+    { text:'그래프 뷰에서 찾은 <b>고립 노트</b>(아무와도 연결되지 않은 노트)의 제목은?',
+      hint:'힌트: STEP 6의 숨은 과제 — 그래프 뷰에서 외딴 점을 찾아보세요.',
+      ok:function(a){ return a.indexOf('템플릿') !== -1 && a.indexOf('상담') !== -1; } },
+    { text:'「단원 설계 - 물의 순환」 노트가 들어 있는 폴더의 <b>번호</b>는? (예: 20)',
+      hint:'힌트: 왼쪽 파일 목록에서 폴더 이름 앞의 숫자를 보세요.',
+      ok:function(a){ return a.indexOf('10') !== -1; } },
+    { text:'「독서 노트」에서 다룬 <b>책의 제목</b>은?',
+      hint:'힌트: 40_자료실 폴더를 열어보세요.',
+      ok:function(a){ return a.indexOf('어린왕자') !== -1; } },
+    { text:'「연수 노트 - AI 활용 수업」에 그려져 있는 머메이드 다이어그램의 <b>종류</b>는?',
+      hint:'힌트: 2일차에 배운 다이어그램 종류 중 하나 — 가운데에서 가지가 뻗어 나갑니다.',
+      ok:function(a){ return a.indexOf('마인드') !== -1 || a.indexOf('mindmap') !== -1; } }
+  ],
+  /* 슬롯 2: 학급운영 노트 내용 */
+  [
+    { text:'「학급 규칙」의 우리 반 3원칙 중 <b>첫 번째</b> 원칙은?',
+      hint:'힌트: 30_학급운영 폴더를 열어보세요.',
+      ok:function(a){ return a.indexOf('존중') !== -1; } },
+    { text:'「학급 규칙」의 우리 반 3원칙 중 <b>두 번째</b> 원칙은?',
+      hint:'힌트: 30_학급운영 폴더를 열어보세요.',
+      ok:function(a){ return a.indexOf('책임') !== -1; } },
+    { text:'「학급 규칙」의 우리 반 3원칙 중 <b>세 번째</b> 원칙은?',
+      hint:'힌트: 30_학급운영 폴더를 열어보세요.',
+      ok:function(a){ return a.indexOf('도전') !== -1; } },
+    { text:'「학급 규칙」에서 급식실 목소리는 <b>몇 단계</b>로 약속했나요? (숫자)',
+      hint:'힌트: 세부 약속을 읽어보세요.',
+      ok:function(a){ return a.indexOf('2') !== -1; } },
+    { text:'「학부모 상담 주간 운영」 시간표에서 상담이 <b>없는 요일</b>은?',
+      hint:'힌트: 시간표에서 — 표시가 있는 요일을 찾으세요.',
+      ok:function(a){ return a === '수' || a.indexOf('수요일') !== -1; } }
+  ],
+  /* 슬롯 3: 현장체험학습 순서도 (머메이드 읽기) */
+  [
+    { text:'「현장체험학습 계획」의 순서도에서 <b>점심을 먹는 장소</b>는?',
+      hint:'힌트: 머메이드 순서도를 읽어보세요 — 2일차에 배운 다이어그램입니다.',
+      ok:function(a){ return a.indexOf('잔디') !== -1; } },
+    { text:'「현장체험학습 계획」에서 우리 반이 가는 <b>견학 장소</b>는?',
+      hint:'힌트: 노트 맨 위 속성(frontmatter)이나 제목 아래를 보세요.',
+      ok:function(a){ return a.indexOf('과천') !== -1 || a.indexOf('과학관') !== -1; } },
+    { text:'「현장체험학습 계획」 순서도에서 <b>비가 오면</b> 어떻게 하기로 했나요?',
+      hint:'힌트: 순서도의 마름모(갈림길)에서 "비" 화살표를 따라가세요.',
+      ok:function(a){ return a.indexOf('실내') !== -1; } },
+    { text:'「현장체험학습 계획」 순서도에서 <b>오후에 가는 곳</b>은?',
+      hint:'힌트: 점심(잔디마당) 다음 단계를 보세요.',
+      ok:function(a){ return a.indexOf('천체') !== -1; } }
+  ]
 ];
+/* 테스트·시연용: ?quiz=0,1,2 로 문제를 고정할 수 있습니다 */
+function pickQuiz(){
+  var forced = (location.search.match(/[?&]quiz=([\d,]+)/) || [])[1];
+  var idx = forced ? forced.split(',').map(Number) : null;
+  return QUIZ_POOL.map(function(pool, s){
+    var i = idx && idx[s] >= 0 && idx[s] < pool.length ? idx[s] : Math.floor(Math.random() * pool.length);
+    return pool[i];
+  });
+}
+var QUIZ = pickQuiz().map(function(q, s){
+  var box = document.getElementById('quiz' + (s+1));
+  box.querySelector('.qtext').innerHTML = q.text;
+  box.querySelector('.qhint').textContent = q.hint;
+  return { id: 'quiz' + (s+1), ok: q.ok };
+});
 var quizPass = [false, false, false];
 QUIZ.forEach(function(q, i){
   var box = document.getElementById(q.id);
