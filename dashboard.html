@@ -35,6 +35,8 @@
   .err{display:none; background:#fff3f0; border:1px solid #f3c4b8; color:#b03a1e; border-radius:12px; padding:12px 16px; font-size:.88rem; margin-bottom:12px;}
   .err.show{display:block;}
   .foot{font-size:.75rem; color:var(--sub); margin-top:16px;}
+  details.ev summary{cursor:pointer; font-size:.8rem; color:var(--accent-deep); font-weight:600; user-select:none;}
+  details.ev pre{margin-top:8px; background:var(--accent-soft); border-radius:8px; padding:10px 12px; font-size:.8rem; font-family:inherit; white-space:pre-wrap; word-break:break-word; max-width:420px; max-height:220px; overflow:auto;}
 </style>
 </head>
 <body>
@@ -97,12 +99,16 @@ function renderList(){
     return;
   }
   var now = Date.now();
-  var html = '<table><tr><th>번호</th><th>이름</th><th>실습</th><th>제출 시각</th></tr>';
+  var html = '<table><tr><th>번호</th><th>이름</th><th>실습</th><th>제출 시각</th><th>산출물</th></tr>';
   rows.forEach(function(r, i){
     var recent = (now - new Date(r.time).getTime()) < 10*60*1000;
+    var ev = String(r.evidence||'').trim();
+    var evCell = ev
+      ? '<details class="ev"><summary>보기 ('+ev.length+'자)</summary><pre>'+esc(ev)+'</pre></details>'
+      : '<span style="color:var(--sub);">—</span>';
     html += '<tr><td class="no">'+(rows.length - i)+'</td><td><strong>'+esc(r.name)+'</strong>'
       + (recent?'<span class="badge-new">방금</span>':'')
-      + '</td><td>'+esc(r.course||'')+'</td><td class="time">'+fmt(r.time)+'</td></tr>';
+      + '</td><td>'+esc(r.course||'')+'</td><td class="time">'+fmt(r.time)+'</td><td>'+evCell+'</td></tr>';
   });
   html += '</table>';
   area.innerHTML = html;
