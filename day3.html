@@ -55,6 +55,11 @@
   .qbox.correct{background:var(--ok-soft); border-color:#bfe8d6;}
   .qbox.correct input[type=text]{background:#f2fbf7;}
   .qbox .qhint{font-size:.78rem; color:var(--sub); margin-top:6px;}
+  .quizblock{margin-top:16px; border-top:2px dashed var(--line); padding-top:14px; transition:opacity .3s, filter .3s;}
+  .quizblock .qb-head{font-size:.95rem; font-weight:800; color:var(--accent-deep); margin-bottom:10px;}
+  .quizblock .qb-lockmsg{font-size:.78rem; font-weight:600; color:var(--sub);}
+  .quizblock.locked{opacity:.4; filter:grayscale(.8); pointer-events:none;}
+  .quizblock:not(.locked) .qb-lockmsg{display:none;}
   .modal .row{display:flex; gap:10px; justify-content:flex-end;}
   .modal .sent{display:none; background:var(--ok-soft); color:var(--ok); border-radius:10px; padding:10px 14px; font-size:.86rem; font-weight:600; margin-bottom:14px;}
   .modal .sent.show{display:block;}
@@ -86,7 +91,7 @@
     <label class="step"><input type="checkbox" class="chk"><span>예제 볼트 zip을 내려받아 압축을 풀고, 옵시디언에서 "폴더를 보관함으로 열기"로 열었다 <span class="hint">압축 푼 위치는 바탕화면 추천 · 처음 열 때 "신뢰" 선택</span></span></label>
   </div>
 
-  <div class="card">
+  <div class="card" id="cardP1">
     <h2><span class="num">1교시</span>나의 두 번째 뇌 만들기</h2>
     <p>연결이 검색을 대체하는 경험을 합니다. 「사용 설명서」 노트를 길잡이로 쓰세요.</p>
     <label class="step"><input type="checkbox" class="chk"><span>「🏠 홈」과 「사용 설명서」를 읽고 폴더 구조(수업·학생·학급운영·자료실·템플릿)를 파악했다</span></label>
@@ -95,9 +100,23 @@
     <label class="step"><input type="checkbox" class="chk"><span>설정 → 코어 플러그인 → <b>템플릿</b>을 켜고 템플릿 폴더를 <b>90_템플릿</b>으로 지정했다</span></label>
     <label class="step"><input type="checkbox" class="chk"><span>「템플릿 - 수업일지」로 나의 실제 수업 1편을 일지로 작성하고, 위키링크 2개 이상과 태그(#학생/관찰)를 달았다 <span class="hint">학생 이름은 반드시 가명으로!</span></span></label>
     <label class="step"><input type="checkbox" class="chk"><span>그래프 뷰를 열어 내 일지가 연결망에 들어온 것을 확인하고, 검색창에 tag:#학생/관찰 을 검색해 봤다</span></label>
+
+    <div class="quizblock locked" id="qb1">
+      <div class="qb-head">📝 1교시 마무리 문제 <span class="qb-lockmsg">— 위 1교시 항목을 모두 체크하면 열립니다</span></div>
+      <div class="qbox" id="quiz1">
+        <div class="q"><b>Q1.</b> <span class="qtext"></span></div>
+        <div class="qrow"><input type="text" placeholder="답을 입력하세요" aria-label="Q1 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
+        <div class="qhint"></div>
+      </div>
+      <div class="qbox" id="quiz2">
+        <div class="q"><b>Q2.</b> <span class="qtext"></span></div>
+        <div class="qrow"><input type="text" placeholder="답을 입력하세요" aria-label="Q2 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
+        <div class="qhint"></div>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="cardP2">
     <h2><span class="num">2교시</span>제미나이로 기록 분석하기 (AI 스튜디오)</h2>
     <p>1일차에 배운 마크다운이 AI 활용 역량으로 바뀌는 시간입니다. <b>구글 계정만 있으면 무료</b>인 Google AI 스튜디오(aistudio.google.com)를 사용합니다.</p>
     <label class="step"><input type="checkbox" class="chk"><span><b>aistudio.google.com</b>에 구글 계정으로 로그인하고 새 채팅(Chat)을 열었다 <span class="hint">학교 구글 계정도 가능 · 별도 설치 없음</span></span></label>
@@ -119,28 +138,19 @@
 # 출력 형식
 옵시디언에 바로 붙여넣을 수 있는 마크다운으로 작성하고,
 맨 위에 오늘 날짜와 #회고 태그를 넣을 것.</pre>
-  </div>
 
-  <div class="card">
-    <h2><span class="num">검증</span>수강 확인 문제</h2>
-    <p>실습을 직접 한 사람만 답할 수 있는 3문제입니다. <b>세 문제를 모두 맞혀야</b> 수강완료 제출이 열립니다. 문제는 문제 은행에서 <b>사람마다 무작위로 출제</b>되므로 옆 사람과 다를 수 있습니다. (답은 전부 예제 볼트 안에 있습니다)</p>
-
-    <div class="qbox" id="quiz1">
-      <div class="q"><b>Q1.</b> <span class="qtext"></span></div>
-      <div class="qrow"><input type="text" placeholder="답을 입력하세요" aria-label="Q1 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
-      <div class="qhint"></div>
-    </div>
-
-    <div class="qbox" id="quiz2">
-      <div class="q"><b>Q2.</b> <span class="qtext"></span></div>
-      <div class="qrow"><input type="text" placeholder="답을 입력하세요" aria-label="Q2 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
-      <div class="qhint"></div>
-    </div>
-
-    <div class="qbox" id="quiz3">
-      <div class="q"><b>Q3.</b> <span class="qtext"></span></div>
-      <div class="qrow"><input type="text" placeholder="답을 입력하세요" aria-label="Q3 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
-      <div class="qhint"></div>
+    <div class="quizblock locked" id="qb2">
+      <div class="qb-head">📝 2교시 마무리 문제 <span class="qb-lockmsg">— 위 2교시 항목을 모두 체크하면 열립니다</span></div>
+      <div class="qbox" id="quiz3">
+        <div class="q"><b>Q3.</b> <span class="qtext"></span></div>
+        <div class="qrow"><input type="text" placeholder="답을 입력하세요" aria-label="Q3 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
+        <div class="qhint"></div>
+      </div>
+      <div class="qbox" id="quiz4">
+        <div class="q"><b>Q4.</b> <span class="qtext"></span></div>
+        <div class="qrow"><input type="text" placeholder="답을 입력하세요" aria-label="Q4 답"><button class="qcheck">확인</button><span class="qmark"></span></div>
+        <div class="qhint"></div>
+      </div>
     </div>
   </div>
 
@@ -176,9 +186,10 @@ var checks = Array.prototype.slice.call(document.querySelectorAll('.chk'));
 function norm(s){
   return String(s||'').toLowerCase().replace(/[\s\-–—_·.「」『』'"“”\[\]]/g, '');
 }
-/* 슬롯별 문제 은행 — 접속할 때마다 각 슬롯에서 1문제씩 무작위로 뽑힙니다 */
+/* 슬롯별 문제 은행 — 접속할 때마다 각 슬롯에서 1문제씩 무작위로 뽑힙니다
+   Q1·Q2 = 1교시 마무리(볼트 구조·학급운영), Q3·Q4 = 2교시 마무리(순서도 읽기·AI 작업실) */
 var QUIZ_POOL = [
-  /* 슬롯 1: 볼트 구조·그래프 뷰 */
+  /* 슬롯 1 (Q1): 볼트 구조·그래프 뷰 */
   [
     { text:'그래프 뷰에서 찾은 <b>고립 노트</b>(아무와도 연결되지 않은 노트)의 제목은?',
       hint:'힌트: STEP 6의 숨은 과제 — 그래프 뷰에서 외딴 점을 찾아보세요.',
@@ -225,6 +236,21 @@ var QUIZ_POOL = [
     { text:'「현장체험학습 계획」 순서도에서 <b>오후에 가는 곳</b>은?',
       hint:'힌트: 점심(잔디마당) 다음 단계를 보세요.',
       ok:function(a){ return a.indexOf('천체') !== -1; } }
+  ],
+  /* 슬롯 4 (Q4): 50_AI작업실 — AI 산출물 관리 규약 */
+  [
+    { text:'50_AI작업실에서 <b>성공한 프롬프트를 모아 두는 노트</b>의 이름은?',
+      hint:'힌트: 50_AI작업실 폴더를 열어보세요.',
+      ok:function(a){ return a.indexOf('라이브러리') !== -1; } },
+    { text:'「AI 작업실 안내」의 마무리 원칙: "생각은 킵에, 지식은 <b>□□</b>에, 날짜는 캘린더에" — 빈칸은?',
+      hint:'힌트: 노트 맨 아래 인용 상자를 보세요.',
+      ok:function(a){ return a.indexOf('볼트') !== -1 || a.indexOf('보관함') !== -1; } },
+    { text:'「AI 작업실 안내」에서 "킵은 받은편지함, 볼트는 <b>□□</b>"라고 역할을 나눴습니다. 빈칸은?',
+      hint:'힌트: 구글 킵 연계 부분을 읽어보세요.',
+      ok:function(a){ return a.indexOf('서재') !== -1; } },
+    { text:'「AI 작업실 안내」에서 볼트의 할 일 중 <b>날짜가 정해진 것</b>은 어디에 등록하라고 했나요?',
+      hint:'힌트: 📅 연계 부분을 읽어보세요.',
+      ok:function(a){ return a.indexOf('캘린더') !== -1; } }
   ]
 ];
 /* 테스트·시연용: ?quiz=0,1,2 로 문제를 고정할 수 있습니다 */
@@ -242,7 +268,7 @@ var QUIZ = pickQuiz().map(function(q, s){
   box.querySelector('.qhint').textContent = q.hint;
   return { id: 'quiz' + (s+1), ok: q.ok };
 });
-var quizPass = [false, false, false];
+var quizPass = [false, false, false, false];
 QUIZ.forEach(function(q, i){
   var box = document.getElementById(q.id);
   var input = box.querySelector('input');
@@ -270,6 +296,22 @@ QUIZ.forEach(function(q, i){
   input.addEventListener('keydown', function(e){ if(e.key === 'Enter') judge(); });
 });
 
+/* 교시별 체크가 모두 끝나야 해당 마무리 문제의 음영이 풀립니다 */
+var QUIZ_BLOCKS = [
+  { block: document.getElementById('qb1'), card: document.getElementById('cardP1') },
+  { block: document.getElementById('qb2'), card: document.getElementById('cardP2') }
+];
+function updateBlocks(){
+  QUIZ_BLOCKS.forEach(function(b){
+    var cardChecks = Array.prototype.slice.call(b.card.querySelectorAll('.chk'));
+    var open = cardChecks.every(function(c){ return c.checked; });
+    b.block.classList.toggle('locked', !open);
+    b.block.querySelectorAll('input, button').forEach(function(el){
+      if(!el.closest('.qbox') || el.closest('.qbox').classList.contains('correct')) return;
+      el.disabled = !open;
+    });
+  });
+}
 function refresh(){
   var done = checks.filter(function(c){ return c.checked; }).length;
   var quizDone = quizPass.filter(Boolean).length;
@@ -278,6 +320,7 @@ function refresh(){
   document.getElementById('progressBar').style.width = ((done + quizDone) / total * 100) + '%';
   document.getElementById('submitBtn').disabled = !(done === checks.length && quizDone === QUIZ.length);
   checks.forEach(function(c){ c.closest('.step').classList.toggle('done', c.checked); });
+  updateBlocks();
 }
 checks.forEach(function(c){ c.addEventListener('change', refresh); });
 refresh();
