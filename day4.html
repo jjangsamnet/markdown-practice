@@ -115,9 +115,47 @@
   </div>
 
   <div class="card">
+    <h2><span class="num">3부</span>실시간 학급 대시보드 — Firebase 데이터베이스</h2>
+    <p>지금까지 만든 도구는 <b>내 화면 안에서만</b> 동작합니다. 여기에 구글 <b>Firebase 데이터베이스</b>를 붙이면, 학생이 휴대폰에서 누른 것이 교실 TV에 <b>즉시</b> 나타나는 진짜 실시간 도구가 됩니다. (구글 계정만 있으면 무료)</p>
+    <label class="step"><input type="checkbox" class="chk"><span><b>console.firebase.google.com</b>에 구글 계정으로 로그인하고 <b>[프로젝트 만들기]</b>로 새 프로젝트를 만들었다 <span class="hint">이름 예: my-class-board · 애널리틱스는 꺼도 됩니다</span></span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>왼쪽 메뉴 <b>빌드 → Realtime Database → [데이터베이스 만들기]</b> → 위치는 아시아 리전 선택 → <b>테스트 모드로 시작</b>했다 <span class="hint">테스트 모드 = 30일 동안 누구나 읽고 쓸 수 있는 실습용 설정</span></span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>프로젝트 개요 → <b>웹 앱(&lt;/&gt;) 추가</b> → 앱 등록 후 나오는 <b>firebaseConfig 코드를 복사</b>해 두었다 <span class="hint">호스팅 설정은 건너뛰어도 됩니다 — 우리는 GitHub Pages를 씁니다</span></span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>아래 요구사항에 <b>내 firebaseConfig를 붙여</b> AI에게 주고, 실시간 모둠 점수판 HTML을 받았다</span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>받은 html을 열고 <b>노트북과 휴대폰에서 동시에 접속</b> — 한쪽에서 +1을 누르면 다른 쪽 화면이 즉시 바뀌는 것을 확인했다 <span class="hint">안 바뀌면 그 증상을 그대로 AI에게 전달해 수정</span></span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>완성본을 1교시 저장소에 업로드해 <b>우리 반 실시간 대시보드 주소</b>를 만들고, Firebase 콘솔의 <b>데이터 탭</b>에서 점수가 실제로 쌓이는 것을 확인했다</span></label>
+
+    <div class="tip"><b>실시간 대시보드 요구사항 예시</b> — 복사한 뒤 맨 아래에 내 firebaseConfig를 붙여 AI에게 주세요.</div>
+    <pre id="fbPromptExample"><button class="copybtn" onclick="copyPre('fbPromptExample', this)">복사</button># 만들 것
+우리 반 실시간 모둠 점수판 (파일 하나짜리 HTML + Firebase Realtime Database)
+
+# 사용자
+- 교사: 교실 TV에 대시보드 화면을 크게 띄움
+- 학생: 휴대폰·태블릿으로 같은 주소에 접속해 구경
+
+# 기능
+- 6개 모둠의 점수를 큰 카드로 표시, 1위 모둠에는 왕관 표시
+- 교사 화면의 +1 / -1 버튼을 누르면 접속한 모든 화면에 즉시 반영
+- 주소 뒤에 ?teacher=1 을 붙였을 때만 버튼이 보이는 교사 모드
+- 전체 초기화 버튼 (교사 모드에만, 누르기 전 확인창)
+
+# 기술 조건 (중요)
+- Firebase Realtime Database 사용, 아래 firebaseConfig를 그대로 사용
+- 스크립트 태그(CDN) 방식으로 — 설치·빌드 없이 단일 html 파일
+- 데이터 구조는 /scores/1 ~ /scores/6 에 숫자 하나씩
+
+# 화면
+- 교실 뒤에서도 보이는 큰 글씨, 점수가 바뀔 때 부드러운 애니메이션
+
+# 내 firebaseConfig
+(여기에 복사해 둔 firebaseConfig를 붙여넣기)</pre>
+
+    <div class="tip"><b>⚠ 데이터베이스 안전 수칙</b> — ① 테스트 모드는 30일 뒤 자동으로 잠깁니다. 계속 쓰려면 콘솔의 규칙 탭에서 기간을 갱신하세요. ② 데이터베이스에는 <b>학생 실명·개인정보를 넣지 않습니다</b> (모둠 번호·별명만). ③ 테스트 모드에선 주소를 아는 누구나 값을 바꿀 수 있으니 <b>학급 밖에 주소를 공유하지 않습니다</b>.</div>
+  </div>
+
+  <div class="card">
     <h2><span class="num">마무리</span>4일차 정리</h2>
-    <label class="step"><input type="checkbox" class="chk"><span>오늘 만든 <b>두 개의 주소</b>(자료실 + 도구)를 볼트의 홈 노트에 기록했다 — 5일차 발표에서 사용합니다</span></label>
-    <p style="margin-top:8px;">모든 항목을 체크했다면 화면 위 <b>✉️ 수강완료 제출</b> 버튼으로 이름을 제출하세요. 내일은 종강 발표회입니다!</p>
+    <label class="step"><input type="checkbox" class="chk"><span>오늘 만든 <b>세 개의 주소</b>(자료실 + 도구 + 실시간 대시보드)를 볼트의 홈 노트에 기록했다 — 5일차 총복습에서 사용합니다</span></label>
+    <p style="margin-top:8px;">모든 항목을 체크했다면 화면 위 <b>✉️ 수강완료 제출</b> 버튼으로 이름을 제출하세요. 내일은 종강 — 총복습과 실전 팁입니다!</p>
   </div>
 </main>
 
@@ -149,12 +187,15 @@ function refresh(){
 checks.forEach(function(c){ c.addEventListener('change', refresh); });
 refresh();
 
-function copyPrompt(){
-  var text = document.getElementById('promptExample').innerText.replace(/^복사\n?/, '');
+function copyPre(id, btn){
+  var text = document.getElementById(id).innerText.replace(/^복사\n?/, '');
   navigator.clipboard.writeText(text).then(function(){
-    var b = document.querySelector('.copybtn'); b.textContent = '복사됨 ✓';
-    setTimeout(function(){ b.textContent = '복사'; }, 1500);
+    btn.textContent = '복사됨 ✓';
+    setTimeout(function(){ btn.textContent = '복사'; }, 1500);
   });
+}
+function copyPrompt(){
+  copyPre('promptExample', document.querySelector('#promptExample .copybtn'));
 }
 
 function openSubmitModal(){
