@@ -49,6 +49,27 @@
   .btn{font-family:inherit; font-size:.92rem; font-weight:600; border-radius:10px; cursor:pointer; padding:10px 20px; border:1px solid var(--line); background:var(--card); color:var(--ink);}
   .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
   .home{font-size:.85rem; color:var(--accent-deep); text-decoration:none;}
+  .grade-form{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0;}
+  .grade-form input{flex:1; min-width:140px; padding:11px 14px; border:1.5px solid var(--line); border-radius:10px; font-size:.92rem; font-family:inherit; outline:none;}
+  .grade-form input:focus{border-color:var(--accent);}
+  .grade-form #gradeUrl{flex:3;}
+  .grade-form button{font-family:inherit; font-size:.92rem; font-weight:700; border:none; border-radius:10px; padding:11px 20px; cursor:pointer; background:var(--accent); color:#fff; flex-shrink:0;}
+  .grade-form button:disabled{background:#c9cdd6; cursor:not-allowed;}
+  .grade-loading{display:none; font-size:.88rem; color:var(--sub); padding:10px 4px;}
+  .grade-loading.show{display:block;}
+  .grade-result{display:none; border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:10px 0;}
+  .grade-result.show{display:block;}
+  .grade-banner{font-size:1.05rem; font-weight:800; border-radius:10px; padding:12px 16px; margin-bottom:12px;}
+  .grade-banner.pass{background:var(--ok-soft); color:var(--ok);}
+  .grade-banner.fail{background:#fdecea; color:#c0392b;}
+  .grade-scores{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;}
+  .grade-scores .gs{flex:1; min-width:90px; background:#fbf9ff; border:1px solid var(--line); border-radius:10px; padding:10px; text-align:center;}
+  .grade-scores .gs b{display:block; font-size:1.4rem; color:var(--accent-deep);}
+  .grade-scores .gs span{font-size:.72rem; color:var(--sub);}
+  .grade-list{margin:8px 0; padding-left:0; list-style:none; font-size:.88rem;}
+  .grade-list li{padding:6px 10px; border-radius:8px; margin-bottom:6px;}
+  .grade-list.good li{background:var(--ok-soft);}
+  .grade-list.miss li{background:#fdf3e7;}
 </style>
 </head>
 <body>
@@ -84,67 +105,64 @@
   </div>
 
   <div class="card">
-    <h2><span class="num">2교시</span>AI와 함께 학급 도구 만들기 — 바이브 코딩</h2>
-    <p>코드를 몰라도 됩니다. <b>요구사항을 마크다운으로 정확히 쓰는 것</b>(1일차)과 <b>결과를 검증하는 것</b>(3일차)이 여러분의 역할입니다.</p>
-    <label class="step"><input type="checkbox" class="chk"><span>만들 도구를 하나 골랐다 — 쉬움: 모둠 뽑기 · 자리 룰렛 / 중간: 알림장 생성기 · 급식 투표 / 도전: 우리 반 퀴즈</span></label>
+    <h2><span class="num">2교시</span>AI 스튜디오로 학생용 학습 게임 만들기</h2>
+    <p>코드를 몰라도 됩니다. <b>구글 AI 스튜디오</b>(3일차에 쓴 그 도구)에 요구사항을 정확히 쓰고, 결과를 검증하는 것이 여러분의 역할입니다.</p>
+    <label class="step"><input type="checkbox" class="chk"><span>만들 게임을 하나 골랐다 — <b>곱셈 게임 · 영단어 게임</b> · 받아쓰기 · 나라 수도 퀴즈 등 우리 반에 필요한 것</span></label>
     <label class="step"><input type="checkbox" class="chk"><span>아래 예시를 참고해 <b>요구사항을 마크다운으로 작성</b>했다 (무엇을·누가·어떤 화면·제약)</span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>AI(제미나이 또는 클로드)에게 요구사항을 주고 <b>"하나의 HTML 파일로 만들어 줘"</b>라고 요청해 코드를 받았다</span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>받은 코드를 <b>도구이름.html</b>로 저장해 더블클릭으로 열고, 직접 써 보며 문제를 찾아 AI와 <b>1회 이상 수정</b>했다 <span class="hint">"버튼을 눌러도 반응이 없어요"처럼 증상을 그대로 전달하면 됩니다</span></span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>완성된 html을 1교시 저장소에 업로드하고 <b>내 도구의 주소</b>로 접속해 확인했다</span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>갤러리 워크: 다른 수강생의 도구 2개 이상을 써 보고 <b>칭찬 1가지 + 제안 1가지</b>를 남겼다</span></label>
+    <label class="step"><input type="checkbox" class="chk"><span><b>aistudio.google.com</b>에 요구사항을 주고 <b>"하나의 HTML 파일로 만들어 줘"</b>라고 요청해 코드를 받았다</span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>받은 코드를 <b>게임이름.html</b>로 저장해 열고, 직접 플레이하며 문제를 찾아 AI와 <b>1회 이상 수정</b>했다 <span class="hint">"정답을 맞혀도 점수가 안 올라요"처럼 증상을 그대로 전달하면 됩니다</span></span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>완성된 html을 1교시 저장소에 업로드하고 <b>내 게임의 주소</b>로 접속해 확인했다</span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>갤러리 워크: 다른 수강생의 게임 2개 이상을 해 보고 <b>칭찬 1가지 + 제안 1가지</b>를 남겼다</span></label>
 
-    <div class="tip"><b>요구사항 예시 (모둠 뽑기)</b> — 복사해서 여러분의 도구로 바꿔 쓰세요. 구체적일수록 결과가 좋아집니다.</div>
+    <div class="tip"><b>요구사항 예시 (곱셈 게임)</b> — 복사해서 여러분의 게임으로 바꿔 쓰세요. 영단어 게임이라면 "구구단 문제" 부분만 바꾸면 됩니다.</div>
     <pre id="promptExample"><button class="copybtn" onclick="copyPrompt()">복사</button># 만들 것
-초등학교 교실에서 쓸 모둠 뽑기 웹 도구 (파일 하나짜리 HTML)
+초등 3학년용 곱셈 연습 게임 (파일 하나짜리 HTML)
 
 # 사용자
-담임교사가 교실 TV 화면에 띄워 놓고 사용
+학생이 자기 태블릿·컴퓨터로 접속해 혼자 연습
 
 # 기능
-- 학생 이름 24명을 넣어 두면 4명씩 6모둠으로 무작위 배정
-- [뽑기] 버튼을 누르면 두구두구 효과 후 결과 표시
-- 같은 결과가 다시 나오지 않게 [다시 뽑기] 가능
+- 구구단 2~9단에서 무작위 곱셈 문제 출제
+- 정답이면 +10점과 신나는 효과, 오답이면 정답을 보여주고 다음 문제
+- 60초 타이머가 끝나면 최종 점수와 등급(예: 곱셈 마스터!) 표시
+- [다시 도전] 버튼
 
 # 화면
-- 글씨는 교실 뒤에서도 보이게 크게
-- 알록달록하고 아이들이 좋아할 디자인
+- 학생 눈높이의 밝은 디자인, 큰 글씨와 큰 버튼
+- 점수와 남은 시간이 항상 크게 보이게
 
 # 제약
-- 인터넷 없이도 동작하는 단일 html 파일
-- 설치나 로그인 없이 더블클릭으로 실행</pre>
+- 설치나 로그인 없이 동작하는 단일 html 파일</pre>
   </div>
 
   <div class="card">
-    <h2><span class="num">3부</span>실시간 학급 대시보드 — Firebase 데이터베이스</h2>
-    <p>지금까지 만든 도구는 <b>내 화면 안에서만</b> 동작합니다. 여기에 구글 <b>Firebase 데이터베이스</b>를 붙이면, 학생이 휴대폰에서 누른 것이 교실 TV에 <b>즉시</b> 나타나는 진짜 실시간 도구가 됩니다. (구글 계정만 있으면 무료)</p>
+    <h2><span class="num">3부</span>실시간 순위 대시보드 — Firebase 데이터베이스</h2>
+    <p>2교시 게임은 <b>내 화면 안에서만</b> 동작합니다. 여기에 구글 <b>Firebase 데이터베이스</b>를 붙이면 학생들의 점수가 서버에 쌓이고, <b>교실 TV에 실시간 순위표</b>가 나타납니다. 누가 새 기록을 세우면 모두의 화면에서 순위가 즉시 바뀝니다. (구글 계정만 있으면 무료)</p>
     <label class="step"><input type="checkbox" class="chk"><span><b>console.firebase.google.com</b>에 구글 계정으로 로그인하고 <b>[프로젝트 만들기]</b>로 새 프로젝트를 만들었다 <span class="hint">이름 예: my-class-board · 애널리틱스는 꺼도 됩니다</span></span></label>
     <label class="step"><input type="checkbox" class="chk"><span>왼쪽 메뉴 <b>빌드 → Realtime Database → [데이터베이스 만들기]</b> → 위치는 아시아 리전 선택 → <b>테스트 모드로 시작</b>했다 <span class="hint">테스트 모드 = 30일 동안 누구나 읽고 쓸 수 있는 실습용 설정</span></span></label>
     <label class="step"><input type="checkbox" class="chk"><span>프로젝트 개요 → <b>웹 앱(&lt;/&gt;) 추가</b> → 앱 등록 후 나오는 <b>firebaseConfig 코드를 복사</b>해 두었다 <span class="hint">호스팅 설정은 건너뛰어도 됩니다 — 우리는 GitHub Pages를 씁니다</span></span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>아래 요구사항에 <b>내 firebaseConfig를 붙여</b> AI에게 주고, 실시간 모둠 점수판 HTML을 받았다</span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>받은 html을 열고 <b>노트북과 휴대폰에서 동시에 접속</b> — 한쪽에서 +1을 누르면 다른 쪽 화면이 즉시 바뀌는 것을 확인했다 <span class="hint">안 바뀌면 그 증상을 그대로 AI에게 전달해 수정</span></span></label>
-    <label class="step"><input type="checkbox" class="chk"><span>완성본을 1교시 저장소에 업로드해 <b>우리 반 실시간 대시보드 주소</b>를 만들고, Firebase 콘솔의 <b>데이터 탭</b>에서 점수가 실제로 쌓이는 것을 확인했다</span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>아래 요구사항에 <b>내 firebaseConfig를 붙여</b> AI에게 주고, <b>게임 + 실시간 순위표</b>가 합쳐진 새 HTML을 받았다</span></label>
+    <label class="step"><input type="checkbox" class="chk"><span><b>노트북과 휴대폰에서 동시에 게임</b>을 해 보고 — 새 점수가 나오면 <b>두 화면의 순위표가 즉시 바뀌는 것</b>을 확인했다 <span class="hint">안 바뀌면 그 증상을 그대로 AI에게 전달해 수정 (흔한 원인: firebaseConfig 누락)</span></span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>완성본을 1교시 저장소에 업로드해 <b>게임 주소</b>를 만들고, 주소 뒤에 <b>?board=1</b>을 붙여 <b>교실 TV용 순위 대시보드</b>도 열어 봤다 <span class="hint">Firebase 콘솔의 데이터 탭에서 /scores에 기록이 쌓이는 것도 확인</span></span></label>
 
-    <div class="tip"><b>실시간 대시보드 요구사항 예시</b> — 복사한 뒤 맨 아래에 내 firebaseConfig를 붙여 AI에게 주세요.</div>
-    <pre id="fbPromptExample"><button class="copybtn" onclick="copyPre('fbPromptExample', this)">복사</button># 만들 것
-우리 반 실시간 모둠 점수판 (파일 하나짜리 HTML + Firebase Realtime Database)
-
-# 사용자
-- 교사: 교실 TV에 대시보드 화면을 크게 띄움
-- 학생: 휴대폰·태블릿으로 같은 주소에 접속해 구경
+    <div class="tip"><b>실시간 리더보드 요구사항 예시</b> — 2교시에 만든 게임 코드와 함께 AI에게 주세요. 맨 아래에 내 firebaseConfig를 붙여넣는 것을 잊지 마세요.</div>
+    <pre id="fbPromptExample"><button class="copybtn" onclick="copyPre('fbPromptExample', this)">복사</button># 만들 것 (이어서)
+위에서 만든 학습 게임에 Firebase 실시간 순위표(리더보드)를 추가
 
 # 기능
-- 6개 모둠의 점수를 큰 카드로 표시, 1위 모둠에는 왕관 표시
-- 교사 화면의 +1 / -1 버튼을 누르면 접속한 모든 화면에 즉시 반영
-- 주소 뒤에 ?teacher=1 을 붙였을 때만 버튼이 보이는 교사 모드
-- 전체 초기화 버튼 (교사 모드에만, 누르기 전 확인창)
+- 게임 시작 전에 별명을 입력 (화면에 "실명 금지" 안내 문구 표시)
+- 게임이 끝나면 별명과 점수를 Firebase에 저장
+- 게임 화면 아래에 전체 순위 TOP 10이 실시간으로 표시
+- 새 기록이 들어오면 접속한 모든 화면에서 순위가 즉시 갱신
+- 1위에는 왕관 표시
+
+# 교실 TV 모드
+- 주소 뒤에 ?board=1 을 붙이면 순위표만 크게 보이는 대시보드 화면
 
 # 기술 조건 (중요)
 - Firebase Realtime Database 사용, 아래 firebaseConfig를 그대로 사용
-- 스크립트 태그(CDN) 방식으로 — 설치·빌드 없이 단일 html 파일
-- 데이터 구조는 /scores/1 ~ /scores/6 에 숫자 하나씩
-
-# 화면
-- 교실 뒤에서도 보이는 큰 글씨, 점수가 바뀔 때 부드러운 애니메이션
+- 스크립트 태그(CDN) 방식 단일 html 파일 유지
+- 데이터 구조: /scores 아래에 {name, score, time} 을 push로 추가
 
 # 내 firebaseConfig
 (여기에 복사해 둔 firebaseConfig를 붙여넣기)</pre>
@@ -153,8 +171,31 @@
   </div>
 
   <div class="card">
+    <h2><span class="num">채점</span>과제 제출 — AI 자동 채점</h2>
+    <p><b>완성한 게임의 주소</b>를 제출하면 AI가 즉시 채점합니다. 기준: <b>① 학습 게임의 효과성 40점 ② 필수 요건 30점</b>(Firebase 실시간 연동 + GitHub 서비스 중 — <b>하나라도 없으면 낙제</b>) <b>③ 디자인의 적합성 30점</b>. 통과하고 90점 이상이면 <b>완성! 🎉</b> — 낙제여도 보충해서 몇 번이든 재도전할 수 있습니다.</p>
+    <div class="grade-form">
+      <input type="text" id="gradeName" placeholder="이름" maxlength="30">
+      <input type="text" id="gradeUrl" placeholder="과제 주소 (예: https://내계정.github.io/저장소/게임.html)">
+      <button id="gradeBtn">🤖 AI 채점 요청</button>
+    </div>
+    <div id="gradeLoading" class="grade-loading">AI가 과제를 읽고 채점하는 중입니다… (10~20초)</div>
+    <div id="gradeResult" class="grade-result">
+      <div id="gradeBanner" class="grade-banner"></div>
+      <div class="grade-scores">
+        <div class="gs"><b id="gsTotal">–</b><span>총점</span></div>
+        <div class="gs"><b id="gsEffect">–</b><span>효과성 /40</span></div>
+        <div class="gs"><b id="gsReq">–</b><span>필수요건 /30</span></div>
+        <div class="gs"><b id="gsDesign">–</b><span>디자인 /30</span></div>
+      </div>
+      <div id="gradeGood"></div>
+      <div id="gradeMissing"></div>
+    </div>
+    <label class="step"><input type="checkbox" class="chk"><span>과제 링크를 제출해 <b>AI 채점</b>을 받았다 (낙제라면 보충 후 재도전!)</span></label>
+  </div>
+
+  <div class="card">
     <h2><span class="num">마무리</span>4일차 정리</h2>
-    <label class="step"><input type="checkbox" class="chk"><span>오늘 만든 <b>세 개의 주소</b>(자료실 + 도구 + 실시간 대시보드)를 볼트의 홈 노트에 기록했다 — 5일차 총복습에서 사용합니다</span></label>
+    <label class="step"><input type="checkbox" class="chk"><span>오늘 만든 <b>주소들</b>(자료실 + 학습 게임 + 실시간 순위 대시보드)을 볼트의 홈 노트에 기록했다 — 5일차 총복습에서 사용합니다</span></label>
     <p style="margin-top:8px;">모든 항목을 체크했다면 화면 위 <b>✉️ 수강완료 제출</b> 버튼으로 이름을 제출하세요. 내일은 종강 — 총복습과 실전 팁입니다!</p>
   </div>
 </main>
@@ -223,6 +264,49 @@ function sendCompletion(){
     alert('제출에 실패했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.');
   });
 }
+/* ─ AI 자동 채점 ─ */
+var grading = false;
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function requestGrade(){
+  if(grading) return;
+  var name = document.getElementById('gradeName').value.trim();
+  var url = document.getElementById('gradeUrl').value.trim();
+  if(!name){ document.getElementById('gradeName').focus(); return; }
+  if(!/^https?:\/\//.test(url)){ alert('과제 주소는 https:// 로 시작해야 합니다.'); document.getElementById('gradeUrl').focus(); return; }
+  var btn = document.getElementById('gradeBtn');
+  grading = true; btn.disabled = true; btn.textContent = '채점 중...';
+  document.getElementById('gradeLoading').classList.add('show');
+  document.getElementById('gradeResult').classList.remove('show');
+  fetch(SUBMIT_URL, {
+    method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({ grade: true, name: name, url: url })
+  }).then(function(r){ return r.json(); }).then(function(res){
+    if(!res.ok){ alert(res.error || '채점 중 오류가 발생했습니다.'); return; }
+    var fb = res.feedback || {};
+    var banner = document.getElementById('gradeBanner');
+    if(fb.pass && fb.score >= 90){ banner.className = 'grade-banner pass'; banner.textContent = fb.message || '완성! 🎉'; }
+    else if(fb.pass){ banner.className = 'grade-banner pass'; banner.textContent = '통과! ' + (fb.message || '보충할 점을 다듬으면 완성입니다.'); }
+    else { banner.className = 'grade-banner fail'; banner.textContent = fb.message || '낙제입니다. 필수 요건을 보충해 재도전하세요!'; }
+    var d = fb.detail || {};
+    document.getElementById('gsTotal').textContent = (fb.score != null ? fb.score : '–') + '점';
+    document.getElementById('gsEffect').textContent = (d.effect != null ? d.effect : '–');
+    document.getElementById('gsReq').textContent = (d.required != null ? d.required : '–');
+    document.getElementById('gsDesign').textContent = (d.design != null ? d.design : '–');
+    var good = (fb.good || []).map(function(g){ return '<li>👍 ' + esc(g) + '</li>'; }).join('');
+    var miss = (fb.missing || []).map(function(g){ return '<li>🔧 ' + esc(g) + '</li>'; }).join('');
+    document.getElementById('gradeGood').innerHTML = good ? '<ul class="grade-list good">' + good + '</ul>' : '';
+    document.getElementById('gradeMissing').innerHTML = miss ? '<ul class="grade-list miss">' + miss + '</ul>' : '';
+    document.getElementById('gradeResult').classList.add('show');
+  }).catch(function(){
+    alert('채점 요청에 실패했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.');
+  }).finally(function(){
+    grading = false; btn.disabled = false; btn.textContent = '🤖 AI 채점 요청';
+    document.getElementById('gradeLoading').classList.remove('show');
+  });
+}
+document.getElementById('gradeBtn').addEventListener('click', requestGrade);
+document.getElementById('gradeUrl').addEventListener('keydown', function(e){ if(e.key === 'Enter') requestGrade(); });
+
 document.getElementById('submitBtn').addEventListener('click', openSubmitModal);
 document.getElementById('modalCancel').addEventListener('click', closeSubmitModal);
 document.getElementById('modalSend').addEventListener('click', sendCompletion);
