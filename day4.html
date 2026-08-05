@@ -253,16 +253,32 @@ function sendCompletion(){
   if(!name){ document.getElementById('studentName').focus(); return; }
   var btn = document.getElementById('modalSend');
   submitting = true; btn.disabled = true; btn.textContent = '제출 중...';
-  fetch(SUBMIT_URL, {
-    method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify({ name: name, course: COURSE })
-  }).then(function(){
+  postWithRetry(JSON.stringify({ name: name, course: COURSE }), 3).then(function(){
     document.getElementById('sentMsg').classList.add('show');
     btn.textContent = '제출 완료 ✓';
   }).catch(function(){
     submitting = false; btn.disabled = false; btn.textContent = '제출하기';
-    alert('제출에 실패했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.');
+    alert('제출에 실패했습니다.\n① 잠시 후 다시 시도해 보세요.\n② 계속 안 되면 휴대폰 핫스팟으로 연결해 재시도하거나, 강사에게 이름을 알려주세요.');
   });
+}
+/* ─ 전송 공통: 자동 재시도 ─ */
+function postWithRetry(body, tries){
+  var attempt = 0;
+  function once(){
+    attempt++;
+    return fetch(SUBMIT_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: body
+    }).then(function(r){ return r.text(); }).then(function(t){
+      try { return JSON.parse(t); } catch(e){ throw new Error('bad-response'); }
+    }).catch(function(err){
+      if(attempt < tries){
+        return new Promise(function(res){ setTimeout(res, 1500 * attempt); }).then(once);
+      }
+      throw err;
+    });
+  }
+  return once();
 }
 /* ─ AI 자동 채점 ─ */
 var grading = false;
@@ -277,10 +293,7 @@ function requestGrade(){
   grading = true; btn.disabled = true; btn.textContent = '채점 중...';
   document.getElementById('gradeLoading').classList.add('show');
   document.getElementById('gradeResult').classList.remove('show');
-  fetch(SUBMIT_URL, {
-    method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify({ grade: true, name: name, url: url })
-  }).then(function(r){ return r.json(); }).then(function(res){
+  postWithRetry(JSON.stringify({ grade: true, name: name, url: url }), 3).then(function(res){
     if(!res.ok){ alert(res.error || '채점 중 오류가 발생했습니다.'); return; }
     var fb = res.feedback || {};
     var banner = document.getElementById('gradeBanner');
@@ -298,7 +311,7 @@ function requestGrade(){
     document.getElementById('gradeMissing').innerHTML = miss ? '<ul class="grade-list miss">' + miss + '</ul>' : '';
     document.getElementById('gradeResult').classList.add('show');
   }).catch(function(){
-    alert('채점 요청에 실패했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.');
+    alert('채점 요청이 3회 모두 실패했습니다.\n① 잠시 후 [AI 채점 요청]을 다시 눌러 보세요. (채점에는 10~30초 걸립니다)\n② 계속 안 되면 학교 네트워크가 차단했을 수 있습니다 — 휴대폰 핫스팟으로 연결해 재시도해 보세요.');
   }).finally(function(){
     grading = false; btn.disabled = false; btn.textContent = '🤖 AI 채점 요청';
     document.getElementById('gradeLoading').classList.remove('show');
